@@ -1,13 +1,14 @@
-#Trabalho 1 - Sistemas Distribuídos
+# Trabalho 1 - Sistemas Distribuídos
 
-##Data de entrega: 27/3
+## Data de entrega: 27/3
 
-##Biblioteca RPC
+## Biblioteca RPC
 
 Construa um sistema de apoio a chamadas remotas de métodos utilizando Lua e LuaSocket. Implemente uma biblioteca luarpc contendo métodos lrpc.createServant, lrpc.waitIncoming e lrpc.createProxy.
 
 A idéia é partir de uma especificação do objeto remoto como abaixo:
 
+````
 struct { name = "minhaStruct",
          fields = {{name = "nome",
                     type = "string"},
@@ -42,10 +43,12 @@ interface { name = "minhaInt",
                }
              }
             }
-           
+````
+          
 Essa é uma especificação que pode ser lida diretamente pelo programa Lua (se você tiver definido uma função chamada interface - a sintaxe de Lua permite que uma função com um único argumento do tipo tabela seja chamada sem os parênteses, como acima). Um arquivo de interface conterá um texto como o do exemplo acima, sempre contendo apenas uma interface. Os tipos que podem aparecer nessa especificação de interface são char, string, double e void. Os parâmetros podem ser declarados como in ou out.
 O seguinte trecho de programa Lua criaria dois servidores com a interface acima:
 
+````
 myobj1 = { foo = 
              function (a, s, st, n)
                return a*2, string.len(s) + st.idade + n
@@ -72,13 +75,18 @@ serv2 = luarpc.createServant (myobj2, arq_interface)
 ...
 -- vai para o estado passivo esperar chamadas:
 luarpc.waitIncoming()
+````
+
 e, por outro lado, o seguinte trecho de programa Lua deve conseguir acessar esse servidor:
 
+````
 ...
 local p1 = luarpc.createproxy (IP, porta1, arq_interface)
 local p2 = luarpc.createproxy (IP, porta2, arq_interface)
 local r, s = p1:foo(3, "alo", {nome = "Aaa", idade = 20, peso = 55.0})
 local t, p = p2:boo(10)
+````
+
 Como sugerido nesse exemplo, um parâmetro out deve ser tratado como um resultado a mais da função.
 
 Observe que tanto o cliente como o servidor conhecem o arquivo de interface. O código cliente deve tentar fazer a conversão dos argumentos que foram enviados para tipos especificados na interface (e gerar erros nos casos em que isso não é possível: por exemplo, se o programa fornece um string com letras onde se espera um parâmetro double).
