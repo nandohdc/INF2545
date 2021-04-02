@@ -1,0 +1,30 @@
+struct { name = "Nat",
+         fields = {
+	    {name = "nat",
+	     type = "Nat"},
+	 }
+}
+interface { name = "minhaInt",
+            methods = {
+               foo = {
+                 resulttype = "double",
+                 args = {{direction = "in",
+                          type = "char"},
+                         {direction = "in",
+                          type = "int"},
+                         {direction = "in",
+                          type = "int"},
+                         {direction = "out",
+                          type = "int"}
+                        }
+               },
+               boo = {
+                 resulttype = "void",
+                 args = {{direction = "in",
+                          type = "double"},
+                         {direction = "out",
+                          type = "Nat"}
+                        }
+               }
+             }
+          }

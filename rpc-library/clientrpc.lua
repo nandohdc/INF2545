@@ -7,15 +7,16 @@
 ---- luarpc
 --
 -----------------------------------------------------------------------
-local librpc = require("luarpc")
+local librpc = require "luarpc"
+local dumper = require "pl.pretty"
+-- local idlfile = require()
 
-local idlfile = require()
+local ip = "127.0.0.1"
+local port = 24219
 
-local p1 = librpc.createproxy (IP, porta1, idlfile)
-local p2 = librpc.createproxy (IP, porta2, idlfile)
+local p1 = librpc.createProxy(ip, port, "interface.idl")
+local r = p1:foo('c',0,0,0)
+print(r)
 
-local r, s = p1:foo(3, "alo", {nome = "Aaa", idade = 20, peso = 55.0})
-print("p1: r="..r.." s="..s)
-
-local t, p = p2:boo(10)
-print("p2: t="..r.." p="..s)
+-- local r, s = p1:foo(3, "alo", {nome = "Aaa", idade = 20, peso = 55.0})
+-- print("p1: r="..r.." s="..s)
