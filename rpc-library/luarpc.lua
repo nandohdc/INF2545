@@ -1,4 +1,3 @@
-
 ---------------------------------------------------------------------
 -- Biblioteca de Remote Procedure Call (RPC)
 --
@@ -17,9 +16,11 @@ local json = require "json-lua/json"
 local librpc = {}
 
 local servers = {}
+local arguments= {}
 Servants = {}
 Result = {}
-Stubs = {}
+local client = nil
+
 
 ---------------------------------------------------------------------
 -- Função Pública: createServant()
@@ -152,13 +153,8 @@ end
 -- Retorno: um stub que representa a definição na interface (idlfile)
 -----------------------------------------------------------------------
 function librpc.createProxy(ip, port, idlFile)
-    local client = nil
     local local_ip = ip
     local local_port = port
-    local msg = nil
-    local result = nil
-    local error = nil
-    local request = nil
 
     --carrega arquivo de interfaces
     dofile(idlFile)
@@ -183,62 +179,6 @@ function librpc.createProxy(ip, port, idlFile)
         client = socket.connect(local_ip, port)
     end
 
-    -- construindo requisicao
-    msg = {type = "REQUEST", func = "foo", parameters = {"0","0","0"}}
-    request = encodeMSG(msg)
-
-    -- envia requisicao
-    error = socket.skip(1, client:send(request..'\n'))
-
-    if error then
-        logger("createProxy", "___ERRORPC: falha ao enviar a requisição. " .. error)
-        os.exit(1)
-    end
-
-    result, error = client:receive('*l')
-
-    --[[
-        Mensagem de Erro no recebimento da mensagem por parte do cliente:
-        -- Closed: O servidor finalizou a conexão com client.
-        -- Timeout: Excedeu o tempo limite de conexão.
-    ]]
-    if error == "closed" then
-        client = nil
-
-        for attempts = 1, 5 do
-            logger("createProxy", "Reconectando - Tentativa " .. attempts .. " de 5")
-            client = socket.connect(local_ip, local_port)
-        end
-
-        if (client == nil) then
-            logger("createProxy", "Número máximo de tentativas excedido. Finalizando o programa...")
-        end
-
-        error = socket.skip(1, client:send(msg..'\n'))
-
-        if error then
-            logger("createProxy", "___ERRORPC: falha ao enviar a requisição. " .. error)
-            os.exit(1)
-        end
-
-        result, error = client:receive('*l')
-
-        if error then
-            print("Erro no recebimento do resultado: " .. error)
-            os.exit(1)
-        end
-    else
-        if error then
-            print("Erro no recebimento do resultado: " .. error)
-            os.exit(1)
-        end
-    end
-
-    local response = decodeMSG(result)
-
-    logger("createProxy", "Fechando a conexão com o servidor.")
-    client:close()
-
     return Result
 end
 
@@ -252,6 +192,10 @@ function interface(...)
     for _, key in ipairs {...} do
         for x, methods in pairs(key.methods) do
             Result[x] = function(...)
+                local msg = nil
+                local result = nil
+                local error = nil
+                local request = nil
                 local parameters = select("#", ...)
                 parameters = parameters - 1
                 if (parameters ~= #methods.args) then
@@ -261,19 +205,19 @@ function interface(...)
                 end
                 local args = {...}
                 table.remove(args, 1)
-                for index=1, #methods.args do
+                for index = 1, #methods.args do
                     if (methods.args[index].type == "int") then
                         if (math.type(args[index]) ~= "integer") then
                             logger("interface", "Tipo de parametro nao esta de acordo com a IDL.")
                             os.exit(1)
                         end
-                        table.insert(Stubs,args[index])
+                        table.insert(arguments, args[index])
                     elseif (methods.args[index].type == "double") then
                         if (math.type(args[index]) ~= "float") then
                             logger("interface", "Tipo de parametro nao esta de acordo com a IDL.")
                             os.exit(1)
                         end
-                        table.insert(Stubs,args[index])
+                        table.insert(arguments, args[index])
                     elseif (methods.args[index].type == "char") then
                         if (type(args[index]) ~= "string") then
                             logger("interface", "Tipo de parametro nao esta de acordo com a IDL.")
@@ -285,19 +229,75 @@ function interface(...)
                                 logger("interface", "Tipo de parametro nao esta de acordo com a IDL.")
                                 os.exit(1)
                             end
-                            table.insert(Stubs,args[index])
+                            table.insert(arguments, args[index])
                         end
                     elseif (methods.args[index].type == "string") then
                         if (type(args[index]) ~= "string") then
                             logger("interface", "Tipo de parametro nao esta de acordo com a IDL.")
                             os.exit(1)
                         end
-                        table.insert(Stubs,args[index])
+                        table.insert(arguments, args[index])
                     end
                 end
                 logger("interface", "Todos os parametros estão corretos.")
-                
-                return "Hello World!"
+
+                -- construindo requisicao
+                msg = {type = "REQUEST", func = x, parameters = arguments}
+                request = encodeMSG(msg)
+
+                -- envia requisicao
+                error = socket.skip(1, client:send(request.."\n"))
+
+                if error then
+                    logger("createProxy", "___ERRORPC: falha ao enviar a requisição. " .. error)
+                    os.exit(1)
+                end
+
+                result, error = client:receive("*l")
+
+                --[[
+                    Mensagem de Erro no recebimento da mensagem por parte do cliente:
+                    -- Closed: O servidor finalizou a conexão com client.
+                    -- Timeout: Excedeu o tempo limite de conexão.
+                ]]
+                if error == "closed" then
+                    client = nil
+
+                    for attempts = 1, 5 do
+                        logger("createProxy", "Reconectando - Tentativa " .. attempts .. " de 5")
+                        client = socket.connect(nil, nil)
+                    end
+
+                    if (client == nil) then
+                        logger("createProxy", "Número máximo de tentativas excedido. Finalizando o programa...")
+                    end
+
+                    error = socket.skip(1, client:send(request .. "\n"))
+
+                    if error then
+                        logger("createProxy", "___ERRORPC: falha ao enviar a requisição. " .. error)
+                        os.exit(1)
+                    end
+
+                    result, error = client:receive("*l")
+
+                    if error then
+                        print("Erro no recebimento do resultado: " .. error)
+                        os.exit(1)
+                    end
+                else
+                    if error then
+                        print("Erro no recebimento do resultado: " .. error)
+                        os.exit(1)
+                    end
+                end
+
+                local response = decodeMSG(result)
+
+                logger("createProxy", "Fechando a conexão com o servidor.")
+                client:close()
+
+                return response["retur"]
             end
         end
     end
@@ -332,13 +332,13 @@ function executeMessageRPC(client, message)
         Em caso de erro, o método retorna nulo.
     ]]
     local ip, server = client:getsockname()
-    print("executeMessageRPC", "Executando Mensagem Recebida de "..ip)
+    print("executeMessageRPC", "Executando Mensagem Recebida de " .. ip)
 
     if (ip == nil) then
         logger("executeMessageRPC", "Erro - O Endereço de Internet Protocol do Cliente é nil.")
         os.exit(1)
     end
-    local func_string = "return Servants[\""..server.."\"]."..message["func"].."()"
+    local func_string = 'return Servants["' .. server .. '"].' .. message["func"] .. "()"
     local func = load(func_string)
     local ret = func()
     local msg = {type = "RESPONSE", func = message["func"], retur = ret}
@@ -348,13 +348,13 @@ function executeMessageRPC(client, message)
         Observe que, se i for 1 ou ausente, esse é efetivamente o número total de bytes enviados. Em caso de erro, o método retorna nil, seguido por uma mensagem de erro, seguido pelo índice do último byte dentro de [i, j] que foi enviado.
         Você pode querer tentar novamente a partir do byte seguinte. A mensagem de erro pode ser 'closed' caso a conexão tenha sido fechada antes que a transmissão fosse concluída ou a string 'timeout' caso tenha ocorrido um tempo limite durante a operação.
     ]]
-    local error = socket.skip(1, client:send(response..'\n'))
+    local error = socket.skip(1, client:send(response .. "\n"))
     if error then
         logger("executeMessageRPC", "___ERRORPC: falha ao enviar a resposta.")
         print(error)
         os.exit(1)
     end
-    logger("executeMessageRPC", "Mensagem Enviada: "..response)
+    logger("executeMessageRPC", "Mensagem Enviada: " .. response)
 end
 
 function encodeMSG(object)
