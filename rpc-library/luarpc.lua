@@ -161,7 +161,6 @@ function librpc.createProxy(ip, port, idlFile)
     dofile(idlFile)
 
     for _, key in ipairs {interface_template} do
-        print(key)
         for x, methods in pairs(key.methods) do
             procedure[x] = function(...)
                 local msg = nil
@@ -215,7 +214,7 @@ function librpc.createProxy(ip, port, idlFile)
                             end
                             table.insert(arguments, args[index])
                         elseif (methods.args[index].type == "void") then
-                            if (args[index] == nil) then
+                            if (args[index] ~= nil) then
                                 logger("interface", "Tipo de parametro nao esta de acordo com a IDL.")
                                 os.exit(1)
                             end

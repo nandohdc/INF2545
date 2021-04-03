@@ -20,7 +20,7 @@ local struct_servant = {
     return number_one, number_two
    end,
    boo =
-   function ()
+   function (teste)
     return nil
   end
 }
