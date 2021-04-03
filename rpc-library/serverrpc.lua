@@ -13,6 +13,7 @@ local dumper = require "pl.pretty"
 local struct_servant = {
    foo =
    function (number_one, character, struct_person, number_two)
+    print(number_one, type(character), struct_person, number_two)
     dumper.dump(struct_person)
     for index = 1, 5 do
       number_one = number_one + 1.1

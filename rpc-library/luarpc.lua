@@ -177,7 +177,7 @@ function librpc.createProxy(ip, port, idlFile)
                 end
 
                 if parameters == 0 then
-                    arguments = {"void"}
+                    arguments = {"empty"}
                 else
                     local args = {...}
                     table.remove(args, 1)
@@ -431,8 +431,10 @@ function executeMessageRPC(client, message)
     Func_string = 'return Servants["' .. server .. '"].' .. message["func"] .. "("
     for index, item in pairs(message.parameters) do
         if (type(item) == "string") then
-            if(item == "void") then
+            if(item == "empty") then
                 Func_string = Func_string .. ","
+            elseif(item == "void") then
+                Func_string = Func_string  .. tostring(nil)  ..","
             else
                 Func_string = Func_string .. '"' .. tostring(item) .. '"' .. ","
             end
