@@ -11,16 +11,15 @@
 -----------------------------------------------------------------------
 local socket = require("socket")
 local dumper = require "pl.pretty"
+local table_counter = require "pl.tablex"
 local json = require "json-lua/json"
 
 local librpc = {}
 
 local servers = {}
-local arguments= {}
 Servants = {}
-Result = {}
-local client = nil
-
+local struct_template = {}
+local interface_template = {}
 
 ---------------------------------------------------------------------
 -- Função Pública: createServant()
@@ -120,6 +119,8 @@ function librpc.waitIncoming()
             ]]
             client, error_message = server:accept()
 
+            server:settimeout(1.0)
+
             if (client == nil) then
                 if (error_message == "timeout") then
                     logger("waitIncoming", "Aceept - Tempo de Conexão Excedido.")
@@ -153,49 +154,21 @@ end
 -- Retorno: um stub que representa a definição na interface (idlfile)
 -----------------------------------------------------------------------
 function librpc.createProxy(ip, port, idlFile)
-    local local_ip = ip
-    local local_port = port
+    local procedure = {}
+    local opened_client = nil
 
     --carrega arquivo de interfaces
     dofile(idlFile)
 
-    if (local_ip == nil) then
-        logger("createProxy", "Nenhum Internet Protocol foi fornecido")
-        local_ip = socket.dns.toip(socket.dns.gethostname())
-        logger("createProxy", "Conectando ao Internet Protocol de Local Host - IP: " .. local_ip)
-    else
-        logger("createProxy", "Conectando ao Internet Protocol fornecido - IP: " .. local_ip)
-    end
-
-    if (local_port == nil) then
-        logger("createProxy", "Nenhuma Porta foi fornecida. Encerrando o programa")
-        os.exit(1)
-    else
-        logger("createProxy", "A Porta fonercida - Porta: " .. local_port)
-    end
-
-    while client == nil do
-        logger("createProxy", "Conectando ao Servidor - IP: " .. local_ip .. " - Porta: " .. local_port)
-        client = socket.connect(local_ip, port)
-    end
-
-    return Result
-end
-
-function struct(...)
-    for lixo, i in ipairs {...} do
-        -- print(i.name)
-    end
-end
-
-function interface(...)
-    for _, key in ipairs {...} do
+    for _, key in ipairs {interface_template} do
+        print(key)
         for x, methods in pairs(key.methods) do
-            Result[x] = function(...)
+            procedure[x] = function(...)
                 local msg = nil
                 local result = nil
                 local error = nil
                 local request = nil
+                local arguments = {}
                 local parameters = select("#", ...)
                 parameters = parameters - 1
                 if (parameters ~= #methods.args) then
@@ -203,50 +176,157 @@ function interface(...)
                     logger("interface", "Numero de parametros nao esta de acordo com a IDL.")
                     os.exit(1)
                 end
-                local args = {...}
-                table.remove(args, 1)
-                for index = 1, #methods.args do
-                    if (methods.args[index].type == "int") then
-                        if (math.type(args[index]) ~= "integer") then
-                            logger("interface", "Tipo de parametro nao esta de acordo com a IDL.")
-                            os.exit(1)
-                        end
-                        table.insert(arguments, args[index])
-                    elseif (methods.args[index].type == "double") then
-                        if (math.type(args[index]) ~= "float") then
-                            logger("interface", "Tipo de parametro nao esta de acordo com a IDL.")
-                            os.exit(1)
-                        end
-                        table.insert(arguments, args[index])
-                    elseif (methods.args[index].type == "char") then
-                        if (type(args[index]) ~= "string") then
-                            logger("interface", "Tipo de parametro nao esta de acordo com a IDL.")
-                            os.exit(1)
-                        else
-                            local length = tostring(args[index])
-                            length = string.len(length)
-                            if (length > 1) then
+
+                if parameters == 0 then
+                    arguments = {"void"}
+                else
+                    local args = {...}
+                    table.remove(args, 1)
+                    for index = 1, #methods.args do
+                        if (methods.args[index].type == "int") then
+                            if (math.type(args[index]) ~= "integer") then
                                 logger("interface", "Tipo de parametro nao esta de acordo com a IDL.")
                                 os.exit(1)
                             end
                             table.insert(arguments, args[index])
+                        elseif (methods.args[index].type == "double") then
+                            if (math.type(args[index]) ~= "float") then
+                                logger("interface", "Tipo de parametro nao esta de acordo com a IDL.")
+                                os.exit(1)
+                            end
+                            table.insert(arguments, args[index])
+                        elseif (methods.args[index].type == "char") then
+                            if (type(args[index]) ~= "string") then
+                                logger("interface", "Tipo de parametro nao esta de acordo com a IDL.")
+                                os.exit(1)
+                            else
+                                local length = tostring(args[index])
+                                length = string.len(length)
+                                if (length > 1) then
+                                    logger("interface", "Tipo de parametro nao esta de acordo com a IDL.")
+                                    os.exit(1)
+                                end
+                                table.insert(arguments, args[index])
+                            end
+                        elseif (methods.args[index].type == "string") then
+                            if (type(args[index]) ~= "string") then
+                                logger("interface", "Tipo de parametro nao esta de acordo com a IDL.")
+                                os.exit(1)
+                            end
+                            table.insert(arguments, args[index])
+                        elseif (methods.args[index].type == "void") then
+                            if (args[index] == nil) then
+                                logger("interface", "Tipo de parametro nao esta de acordo com a IDL.")
+                                os.exit(1)
+                            end
+                            table.insert(arguments, methods.args[index].type)
+                        elseif (type(struct_template.fields) == "table") then
+                            local structObj = {}
+                            if (type(args[index]) ~= "table") then
+                                logger("interface", "Tipo de parametro nao esta de acordo com a IDL.")
+                                os.exit(1)
+                            else
+                                if (table_counter.size(args[index]) ~= table_counter.size(struct_template.fields)) then
+                                    logger("struct", "Numero de argumentos nao esta de acordo com a IDL.")
+                                    os.exit(1)
+                                else
+                                    for subindex = 1, #struct_template.fields do
+                                        for subindx, instance in pairs(args[index]) do
+                                            if struct_template.fields[subindex].name == subindx then
+                                                if (struct_template.fields[subindex].type == "int") then
+                                                    if (math.type(instance) ~= "integer") then
+                                                        logger(
+                                                            "struct",
+                                                            "Tipo de parametro nao esta de acordo com a IDL."
+                                                        )
+                                                        os.exit(1)
+                                                    end
+                                                    structObj[subindx] = instance
+                                                elseif (struct_template.fields[subindex].type == "double") then
+                                                    if (math.type(instance) ~= "float") then
+                                                        logger(
+                                                            "struct",
+                                                            "Tipo de parametro nao esta de acordo com a IDL."
+                                                        )
+                                                        os.exit(1)
+                                                    end
+                                                    structObj[subindx] = instance
+                                                elseif (struct_template.fields[subindex].type == "char") then
+                                                    if (type(instance) ~= "string") then
+                                                        logger(
+                                                            "interface",
+                                                            "Tipo de parametro nao esta de acordo com a IDL."
+                                                        )
+                                                        os.exit(1)
+                                                    else
+                                                        local length = tostring(instance)
+                                                        length = string.len(length)
+                                                        if (length > 1) then
+                                                            logger(
+                                                                "interface",
+                                                                "Tipo de parametro nao esta de acordo com a IDL."
+                                                            )
+                                                            os.exit(1)
+                                                        end
+                                                        structObj[subindx] = instance
+                                                    end
+                                                elseif (struct_template.fields[subindex].type == "string") then
+                                                    if (type(instance) ~= "string") then
+                                                        logger(
+                                                            "interface",
+                                                            "Tipo de parametro nao esta de acordo com a IDL."
+                                                        )
+                                                        os.exit(1)
+                                                    end
+                                                    structObj[subindx] = instance
+                                                end
+                                            end
+                                        end
+                                    end
+                                    logger("struct", "Todos os parametros estão corretos.")
+                                end
+                            end
+                            table.insert(arguments, structObj)
                         end
-                    elseif (methods.args[index].type == "string") then
-                        if (type(args[index]) ~= "string") then
-                            logger("interface", "Tipo de parametro nao esta de acordo com a IDL.")
-                            os.exit(1)
-                        end
-                        table.insert(arguments, args[index])
                     end
                 end
-                logger("interface", "Todos os parametros estão corretos.")
+                local local_ip = ip
+                local local_port = port
+                local client = nil
+        
+                if (local_ip == nil) then
+                    logger("createProxy", "Nenhum Internet Protocol foi fornecido")
+                    local_ip = socket.dns.toip(socket.dns.gethostname())
+                    logger("createProxy", "Conectando ao Internet Protocol de Local Host - IP: " .. local_ip)
+                else
+                    logger("createProxy", "Conectando ao Internet Protocol fornecido - IP: " .. local_ip)
+                end
 
+                if (local_port == nil) then
+                    logger("createProxy", "Nenhuma Porta foi fornecida. Encerrando o programa")
+                    os.exit(1)
+                else
+                    logger("createProxy", "A Porta fonercida - Porta: " .. local_port)
+                end
+                local counter = 0
+                while client == nil and counter < 5 do
+                    logger("createProxy", "Conectando ao Servidor - IP: " .. local_ip .. " - Porta: " .. local_port)
+                    client = socket.connect(local_ip, port)
+                    counter = counter + 1
+                end
+
+                if (counter == 5) then
+                    logger("createProxy", "Numero Maximo de Tentativas Excedidos. Finalizando o programa..")
+                    os.exit(1)
+                end
+
+                logger("interface", "Todos os parametros estão corretos.")
                 -- construindo requisicao
                 msg = {type = "REQUEST", func = x, parameters = arguments}
                 request = encodeMSG(msg)
 
                 -- envia requisicao
-                error = socket.skip(1, client:send(request.."\n"))
+                error = socket.skip(1, client:send(request .. '\n'))
 
                 if error then
                     logger("createProxy", "___ERRORPC: falha ao enviar a requisição. " .. error)
@@ -272,7 +352,7 @@ function interface(...)
                         logger("createProxy", "Número máximo de tentativas excedido. Finalizando o programa...")
                     end
 
-                    error = socket.skip(1, client:send(request .. "\n"))
+                    error = socket.skip(1, client:send(request..'\n'))
 
                     if error then
                         logger("createProxy", "___ERRORPC: falha ao enviar a requisição. " .. error)
@@ -292,15 +372,26 @@ function interface(...)
                     end
                 end
 
-                local response = decodeMSG(result)
+                Response = decodeMSG(result)
+                dumper.dump(Response)
 
                 logger("createProxy", "Fechando a conexão com o servidor.")
                 client:close()
 
-                return response["retur"]
+                return load('return table.unpack(Response["retur"])')()
             end
         end
     end
+
+    return procedure
+end
+
+function struct(...)
+    struct_template = ...
+end
+
+function interface(...)
+    interface_template = ...
 end
 
 function logger(name, activity)
@@ -315,7 +406,6 @@ function receiveMessageRPC(client)
         if (message == nil) then
             logger("receiveMessageRPC", "Erro - O conteúdo da mensagem é nil e a conexão foi finalizada.")
         end
-        return nil
     elseif (error == "timeout") then
         logger("receiveMessageRPC", "Erro - O tempo de conexão foi excedido.")
         return nil
@@ -338,9 +428,35 @@ function executeMessageRPC(client, message)
         logger("executeMessageRPC", "Erro - O Endereço de Internet Protocol do Cliente é nil.")
         os.exit(1)
     end
-    local func_string = 'return Servants["' .. server .. '"].' .. message["func"] .. "()"
-    local func = load(func_string)
-    local ret = func()
+    dumper.dump(message)
+    Func_string = 'return Servants["' .. server .. '"].' .. message["func"] .. "("
+    for index, item in pairs(message.parameters) do
+        if (type(item) == "string") then
+            if(item == "void") then
+                Func_string = Func_string .. ","
+            else
+                Func_string = Func_string .. '"' .. tostring(item) .. '"' .. ","
+            end
+        elseif (type(item) == "table") then
+            Func_string = Func_string .. "{"
+            for subindx, instance in pairs(item) do
+                if (type(instance) == "string") then
+                    Func_string = Func_string .. subindx .. " = " .. '"' .. tostring(instance) .. '"' .. ","
+                else
+                    Func_string = Func_string .. subindx .. " = " .. instance .. ","
+                end
+            end
+            Func_string = string.sub(Func_string, 1, #Func_string - 1)
+            Func_string = Func_string .. "},"
+        else
+            Func_string = Func_string .. item .. ","
+        end
+    end
+    Func_string = string.sub(Func_string, 1, #Func_string - 1)
+    Func_string = Func_string .. ")"
+    print(Func_string)
+    local func = load(Func_string)
+    local ret = {func()}
     local msg = {type = "RESPONSE", func = message["func"], retur = ret}
     local response = encodeMSG(msg)
     --[[
@@ -348,7 +464,7 @@ function executeMessageRPC(client, message)
         Observe que, se i for 1 ou ausente, esse é efetivamente o número total de bytes enviados. Em caso de erro, o método retorna nil, seguido por uma mensagem de erro, seguido pelo índice do último byte dentro de [i, j] que foi enviado.
         Você pode querer tentar novamente a partir do byte seguinte. A mensagem de erro pode ser 'closed' caso a conexão tenha sido fechada antes que a transmissão fosse concluída ou a string 'timeout' caso tenha ocorrido um tempo limite durante a operação.
     ]]
-    local error = socket.skip(1, client:send(response .. "\n"))
+    local error = socket.skip(1, client:send(response .. '\n'))
     if error then
         logger("executeMessageRPC", "___ERRORPC: falha ao enviar a resposta.")
         print(error)
@@ -364,7 +480,7 @@ function encodeMSG(object)
         os.exit(1)
     end
     message = json.encode(object)
-    logger("encodeMSG", "Messagem codificada.")
+    logger("encodeMSG", "Mensagem codificada.")
     print(message)
     return message
 end
@@ -376,7 +492,7 @@ function decodeMSG(JSONobject)
         os.exit(1)
     end
     object = json.decode(JSONobject)
-    logger("decodeMSG", "Messagem decodificada.")
+    logger("decodeMSG", "Mensagem decodificada.")
     dumper.dump(object)
     return object
 end

@@ -1,7 +1,9 @@
-struct { name = "Nat",
+struct { name = "person",
          fields = {
-	    {name = "nat",
-	     type = "Nat"},
+	    {name = "age",
+	     type = "int"},
+       {name = "name",
+       type = "string"},
 	 }
 }
 interface { name = "minhaInt",
@@ -9,22 +11,19 @@ interface { name = "minhaInt",
                foo = {
                  resulttype = "double",
                  args = {{direction = "in",
-                          type = "char"},
+                          type = "double"},
                          {direction = "in",
-                          type = "int"},
+                          type = "string"},
                          {direction = "in",
-                          type = "int"},
+                          type = "person"},
                          {direction = "out",
                           type = "int"}
                         }
+
                },
                boo = {
                  resulttype = "void",
-                 args = {{direction = "in",
-                          type = "double"},
-                         {direction = "out",
-                          type = "Nat"}
-                        }
+                 args = {}
                }
              }
-          }
+            }
