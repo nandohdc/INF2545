@@ -9,7 +9,6 @@
 -----------------------------------------------------------------------
 local librpc = require "luarpc"
 local dumper = require "pl.pretty"
--- local idlfile = require()
 
 local struct_servant = {
    foo =
@@ -27,7 +26,7 @@ local struct_servant = {
 }
 
 -- cria servidores:
-local serv1 = librpc.createServant(struct_servant, nil, nil, 5555)
+local serv1 = librpc.createServant(struct_servant, nil, nil, nil)
 if (serv1 == nil) then
   logger("ServerRPC", "Não possível criar um servant.")
   os.exit(1)

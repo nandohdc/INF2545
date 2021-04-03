@@ -8,11 +8,9 @@
 --
 -----------------------------------------------------------------------
 local librpc = require "luarpc"
-local dumper = require "pl.pretty"
--- local idlfile = require()
 
 local ip = "127.0.0.1"
-local port = 5555
+local port = 58270
 
 local p1 = librpc.createProxy(ip, port, "interface.idl")
 local r, s= p1:foo(0.0,'c',{age = 60, name = "Fernando"},1)
