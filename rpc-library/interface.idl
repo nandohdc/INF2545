@@ -14,9 +14,9 @@ interface { name = "minhaInt",
                           type = "double"},
                          {direction = "in",
                           type = "void"},
-                         {direction = "in",
-                          type = "person"},
                          {direction = "out",
+                          type = "person"},
+                         {direction = "in",
                           type = "int"}
                         }
 
@@ -24,6 +24,6 @@ interface { name = "minhaInt",
                boo = {
                  resulttype = "void",
                  args = {}
-               }
+               },
              }
             }

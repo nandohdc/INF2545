@@ -27,7 +27,7 @@ local struct_servant = {
 }
 
 -- cria servidores:
-local serv1 = librpc.createServant(struct_servant, nil, nil, nil)
+local serv1 = librpc.createServant(struct_servant, "interface.idl", nil, 5555)
 if (serv1 == nil) then
   logger("ServerRPC", "Não possível criar um servant.")
   os.exit(1)

@@ -33,10 +33,12 @@ local interface_template = {}
 --
 -- Retorno: um stub que representa a definição na interface (idlfile)
 -----------------------------------------------------------------------
-function librpc.createServant(servobj, idlfile, ip, port)
+function librpc.createServant(servobj, idlFile, ip, port)
     local servant = {}
     local local_ip = ip
     local local_port = port
+
+    dofile(idlFile)
 
     -- valida o IP passado como parametro para a funcao
     if (local_ip == nil) then
@@ -155,7 +157,6 @@ end
 -----------------------------------------------------------------------
 function librpc.createProxy(ip, port, idlFile)
     local procedure = {}
-    local opened_client = nil
 
     --carrega arquivo de interfaces
     dofile(idlFile)
@@ -169,6 +170,8 @@ function librpc.createProxy(ip, port, idlFile)
                 local request = nil
                 local arguments = {}
                 local parameters = select("#", ...)
+                local nout = 0
+                local directions = {}
                 parameters = parameters - 1
                 if (parameters ~= #methods.args) then
                     --erro
@@ -180,20 +183,25 @@ function librpc.createProxy(ip, port, idlFile)
                     arguments = {"empty"}
                 else
                     local args = {...}
-                    table.remove(args, 1)
+                    local functions = table.remove(args, 1)
                     for index = 1, #methods.args do
+                        if (methods.args[index].direction == "out") then
+                            nout = nout + 1
+                        end
                         if (methods.args[index].type == "int") then
                             if (math.type(args[index]) ~= "integer") then
                                 logger("interface", "Tipo de parametro nao esta de acordo com a IDL.")
                                 os.exit(1)
                             end
                             table.insert(arguments, args[index])
+                            table.insert(directions, {methods.args[index].type, methods.args[index].direction})
                         elseif (methods.args[index].type == "double") then
                             if (math.type(args[index]) ~= "float") then
                                 logger("interface", "Tipo de parametro nao esta de acordo com a IDL.")
                                 os.exit(1)
                             end
                             table.insert(arguments, args[index])
+                            table.insert(directions, {methods.args[index].type, methods.args[index].direction})
                         elseif (methods.args[index].type == "char") then
                             if (type(args[index]) ~= "string") then
                                 logger("interface", "Tipo de parametro nao esta de acordo com a IDL.")
@@ -206,6 +214,7 @@ function librpc.createProxy(ip, port, idlFile)
                                     os.exit(1)
                                 end
                                 table.insert(arguments, args[index])
+                                table.insert(directions, {methods.args[index].type, methods.args[index].direction})
                             end
                         elseif (methods.args[index].type == "string") then
                             if (type(args[index]) ~= "string") then
@@ -213,12 +222,14 @@ function librpc.createProxy(ip, port, idlFile)
                                 os.exit(1)
                             end
                             table.insert(arguments, args[index])
+                            table.insert(directions, {methods.args[index].type, methods.args[index].direction})
                         elseif (methods.args[index].type == "void") then
                             if (args[index] ~= nil) then
                                 logger("interface", "Tipo de parametro nao esta de acordo com a IDL.")
                                 os.exit(1)
                             end
                             table.insert(arguments, methods.args[index].type)
+                            table.insert(directions, {methods.args[index].type, methods.args[index].direction})
                         elseif (type(struct_template.fields) == "table") then
                             local structObj = {}
                             if (type(args[index]) ~= "table") then
@@ -253,7 +264,7 @@ function librpc.createProxy(ip, port, idlFile)
                                                 elseif (struct_template.fields[subindex].type == "char") then
                                                     if (type(instance) ~= "string") then
                                                         logger(
-                                                            "interface",
+                                                            "struct",
                                                             "Tipo de parametro nao esta de acordo com a IDL."
                                                         )
                                                         os.exit(1)
@@ -262,7 +273,7 @@ function librpc.createProxy(ip, port, idlFile)
                                                         length = string.len(length)
                                                         if (length > 1) then
                                                             logger(
-                                                                "interface",
+                                                                "struct",
                                                                 "Tipo de parametro nao esta de acordo com a IDL."
                                                             )
                                                             os.exit(1)
@@ -272,7 +283,16 @@ function librpc.createProxy(ip, port, idlFile)
                                                 elseif (struct_template.fields[subindex].type == "string") then
                                                     if (type(instance) ~= "string") then
                                                         logger(
-                                                            "interface",
+                                                            "struct",
+                                                            "Tipo de parametro nao esta de acordo com a IDL."
+                                                        )
+                                                        os.exit(1)
+                                                    end
+                                                    structObj[subindx] = instance
+                                                elseif (struct_template.fields[subindex].type == "void") then
+                                                    if (instance ~= nil) then
+                                                        logger(
+                                                            "struct",
                                                             "Tipo de parametro nao esta de acordo com a IDL."
                                                         )
                                                         os.exit(1)
@@ -292,7 +312,7 @@ function librpc.createProxy(ip, port, idlFile)
                 local local_ip = ip
                 local local_port = port
                 local client = nil
-        
+
                 if (local_ip == nil) then
                     logger("createProxy", "Nenhum Internet Protocol foi fornecido")
                     local_ip = socket.dns.toip(socket.dns.gethostname())
@@ -325,7 +345,7 @@ function librpc.createProxy(ip, port, idlFile)
                 request = encodeMSG(msg)
 
                 -- envia requisicao
-                error = socket.skip(1, client:send(request .. '\n'))
+                error = socket.skip(1, client:send(request .. "\n"))
 
                 if error then
                     logger("createProxy", "___ERRORPC: falha ao enviar a requisição. " .. error)
@@ -351,7 +371,7 @@ function librpc.createProxy(ip, port, idlFile)
                         logger("createProxy", "Número máximo de tentativas excedido. Finalizando o programa...")
                     end
 
-                    error = socket.skip(1, client:send(request..'\n'))
+                    error = socket.skip(1, client:send(request .. "\n"))
 
                     if error then
                         logger("createProxy", "___ERRORPC: falha ao enviar a requisição. " .. error)
@@ -372,7 +392,14 @@ function librpc.createProxy(ip, port, idlFile)
                 end
 
                 Response = decodeMSG(result)
-                dumper.dump(Response)
+
+                if (table_counter.size(Response["retur"]) ~= nout + 1) then
+                    logger(
+                        "createProxy",
+                        "O Numero Parêmetros de Retorno da Reposta nao esta de acordo com a IDL. Verifique a definição e a implementação do servidor."
+                    )
+                    os.exit(1)
+                end
 
                 logger("createProxy", "Fechando a conexão com o servidor.")
                 client:close()
@@ -381,7 +408,6 @@ function librpc.createProxy(ip, port, idlFile)
             end
         end
     end
-
     return procedure
 end
 
@@ -431,10 +457,10 @@ function executeMessageRPC(client, message)
     Func_string = 'return Servants["' .. server .. '"].' .. message["func"] .. "("
     for index, item in pairs(message.parameters) do
         if (type(item) == "string") then
-            if(item == "empty") then
+            if (item == "empty") then
                 Func_string = Func_string .. ","
-            elseif(item == "void") then
-                Func_string = Func_string  .. tostring(nil)  ..","
+            elseif (item == "void") then
+                Func_string = Func_string .. tostring(nil) .. ","
             else
                 Func_string = Func_string .. '"' .. tostring(item) .. '"' .. ","
             end
@@ -455,9 +481,114 @@ function executeMessageRPC(client, message)
     end
     Func_string = string.sub(Func_string, 1, #Func_string - 1)
     Func_string = Func_string .. ")"
-    print(Func_string)
     local func = load(Func_string)
-    local ret = {func()}
+    local temp = {func()}
+    print(interface_template.methods[message["func"]].resulttype, temp[1])
+    if (interface_template.methods[message["func"]].resulttype == "char") then
+        if (type(temp[1]) ~= "string") then
+            logger(
+                "executeMessageRPC",
+                "O Parêmetro de Retorno da Reposta nao esta de acordo com a IDL. Verifique a definição e a implementação do servidor."
+            )
+            os.exit(1)
+        else
+            local length = tostring(temp[1])
+            length = string.len(length)
+            if (length > 1) then
+                logger("interface", "Tipo de parametro nao esta de acordo com a IDL.")
+                os.exit(1)
+            end
+        end
+    elseif (interface_template.methods[message["func"]].resulttype == "string") then
+        if (type(temp[1]) ~= "string") then
+            logger(
+                "executeMessageRPC",
+                "O Parêmetro de Retorno da Reposta nao esta de acordo com a IDL. Verifique a definição e a implementação do servidor."
+            )
+            os.exit(1)
+        end
+    elseif (interface_template.methods[message["func"]].resulttype == "double") then
+        if (math.type(temp[1]) ~= "float") then
+            logger(
+                "executeMessageRPC",
+                "O Parêmetro de Retorno da Reposta nao esta de acordo com a IDL. Verifique a definição e a implementação do servidor."
+            )
+            os.exit(1)
+        end
+    elseif (interface_template.methods[message["func"]].resulttype == "int") then
+        if (math.type(temp[1]) ~= "integer") then
+            logger(
+                "executeMessageRPC",
+                "O Parêmetro de Retorno da Reposta nao esta de acordo com a IDL. Verifique a definição e a implementação do servidor."
+            )
+            os.exit(1)
+        end
+    elseif (interface_template.methods[message["func"]].resulttype == "void") then
+        if (temp[1] ~= nil) then
+            logger(
+                "executeMessageRPC",
+                "O Parêmetro de Retorno da Reposta nao esta de acordo com a IDL. Verifique a definição e a implementação do servidor."
+            )
+            os.exit(1)
+        end
+    elseif (type(struct_template.fields) == "table") then
+        if (type(temp[1]) ~= "table") then
+            logger("interface", "Tipo de parametro nao esta de acordo com a IDL.")
+            os.exit(1)
+        else
+            if (table_counter.size(temp[1]) ~= table_counter.size(struct_template.fields)) then
+                logger("struct", "Numero de argumentos nao esta de acordo com a IDL.")
+                os.exit(1)
+            else
+                for subindex = 1, #struct_template.fields do
+                    for subindx, instance in pairs(temp[1]) do
+                        if struct_template.fields[subindex].name == subindx then
+                            if (struct_template.fields[subindex].type == "int") then
+                                if (math.type(instance) ~= "integer") then
+                                    logger("struct", "Tipo de parametro nao esta de acordo com a IDL.")
+                                    os.exit(1)
+                                end
+                            elseif (struct_template.fields[subindex].type == "double") then
+                                if (math.type(instance) ~= "float") then
+                                    logger("struct", "Tipo de parametro nao esta de acordo com a IDL.")
+                                    os.exit(1)
+                                end
+                            elseif (struct_template.fields[subindex].type == "char") then
+                                if (type(instance) ~= "string") then
+                                    logger("struct", "Tipo de parametro nao esta de acordo com a IDL.")
+                                    os.exit(1)
+                                else
+                                    local length = tostring(instance)
+                                    length = string.len(length)
+                                    if (length > 1) then
+                                        logger("struct", "Tipo de parametro nao esta de acordo com a IDL.")
+                                        os.exit(1)
+                                    end
+                                end
+                            elseif (struct_template.fields[subindex].type == "string") then
+                                if (type(instance) ~= "string") then
+                                    logger("struct", "Tipo de parametro nao esta de acordo com a IDL.")
+                                    os.exit(1)
+                                end
+                            elseif (struct_template.fields[subindex].type == "void") then
+                                if (instance ~= nil) then
+                                    logger("struct", "Tipo de parametro nao esta de acordo com a IDL.")
+                                    os.exit(1)
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    local ret = nil
+    if (next(temp) == nil) then
+        ret = {"void"}
+    else
+        ret = temp
+    end
     local msg = {type = "RESPONSE", func = message["func"], retur = ret}
     local response = encodeMSG(msg)
     --[[
@@ -465,7 +596,7 @@ function executeMessageRPC(client, message)
         Observe que, se i for 1 ou ausente, esse é efetivamente o número total de bytes enviados. Em caso de erro, o método retorna nil, seguido por uma mensagem de erro, seguido pelo índice do último byte dentro de [i, j] que foi enviado.
         Você pode querer tentar novamente a partir do byte seguinte. A mensagem de erro pode ser 'closed' caso a conexão tenha sido fechada antes que a transmissão fosse concluída ou a string 'timeout' caso tenha ocorrido um tempo limite durante a operação.
     ]]
-    local error = socket.skip(1, client:send(response .. '\n'))
+    local error = socket.skip(1, client:send(response .. "\n"))
     if error then
         logger("executeMessageRPC", "___ERRORPC: falha ao enviar a resposta.")
         print(error)
