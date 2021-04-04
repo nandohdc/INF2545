@@ -401,6 +401,12 @@ function librpc.createProxy(ip, port, idlFile)
                     os.exit(1)
                 end
 
+                if (type(Response["retur"][1]) == "string") then
+                    if (Response["retur"][1] == "void") then
+                        Response["retur"][1] = nil
+                    end
+                end
+
                 logger("createProxy", "Fechando a conexão com o servidor.")
                 client:close()
 
@@ -483,7 +489,7 @@ function executeMessageRPC(client, message)
     Func_string = Func_string .. ")"
     local func = load(Func_string)
     local temp = {func()}
-    print(interface_template.methods[message["func"]].resulttype, temp[1])
+
     if (interface_template.methods[message["func"]].resulttype == "char") then
         if (type(temp[1]) ~= "string") then
             logger(
@@ -583,6 +589,106 @@ function executeMessageRPC(client, message)
         end
     end
 
+    local arguments_template = {}
+
+    for index = 1, table_counter.size(interface_template.methods[message["func"]].args) do
+        if (interface_template.methods[message["func"]].args[index].direction == "out") then
+            table.insert(arguments_template, interface_template.methods[message["func"]].args[index].type)
+        end
+    end
+
+    if (table_counter.size(temp) > 1) then
+        if (table_counter.size(arguments_template) == table_counter.size(arguments_template)) then
+            local arguments_out = nil
+            arguments_out = {table.unpack(temp, 2, table_counter.size(temp))}
+            for index = 1, table_counter.size(arguments_out) do
+                if (arguments_template[index] == "int") then
+                    if (math.type(arguments_out[index]) ~= "integer") then
+                        logger("executeMessageRPC", "Tipo de parâmetro de saída inválido.")
+                        os.exit(1)
+                    end
+                elseif (arguments_template[index] == "double") then
+                    if (math.type(arguments_out[index]) ~= "float") then
+                        logger("executeMessageRPC", "Tipo de parâmetro de saída inválido.")
+                        os.exit(1)
+                    end
+                elseif (arguments_template[index] == "person") then
+                    if (type(arguments_out[index]) ~= "table") then
+                        logger("executeMessageRPC", "Tipo de parâmetro de saída inválido.")
+                        os.exit(1)
+                    else
+                        if (table_counter.size(arguments_out[index]) ~= table_counter.size(struct_template.fields)) then
+                            logger("struct", "Numero de argumentos nao esta de acordo com a IDL.")
+                            os.exit(1)
+                        else
+                            for subindex = 1, #struct_template.fields do
+                                for subindx, instance in pairs(arguments_out[index]) do
+                                    if struct_template.fields[subindex].name == subindx then
+                                        if (struct_template.fields[subindex].type == "int") then
+                                            if (math.type(instance) ~= "integer") then
+                                                logger("struct", "Tipo de parametro nao esta de acordo com a IDL.")
+                                                os.exit(1)
+                                            end
+                                        elseif (struct_template.fields[subindex].type == "double") then
+                                            if (math.type(instance) ~= "float") then
+                                                logger("struct", "Tipo de parametro nao esta de acordo com a IDL.")
+                                                os.exit(1)
+                                            end
+                                        elseif (struct_template.fields[subindex].type == "char") then
+                                            if (type(instance) ~= "string") then
+                                                logger("struct", "Tipo de parametro nao esta de acordo com a IDL.")
+                                                os.exit(1)
+                                            else
+                                                local length = tostring(instance)
+                                                length = string.len(length)
+                                                if (length > 1) then
+                                                    logger("struct", "Tipo de parametro nao esta de acordo com a IDL.")
+                                                    os.exit(1)
+                                                end
+                                            end
+                                        elseif (struct_template.fields[subindex].type == "string") then
+                                            if (type(instance) ~= "string") then
+                                                logger("struct", "Tipo de parametro nao esta de acordo com a IDL.")
+                                                os.exit(1)
+                                            end
+                                        elseif (struct_template.fields[subindex].type == "void") then
+                                            if (instance ~= nil) then
+                                                logger("struct", "Tipo de parametro nao esta de acordo com a IDL.")
+                                                os.exit(1)
+                                            end
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                elseif (arguments_template[index] == "char") then
+                    if (type(arguments_out[index]) ~= "string") then
+                        logger("executeMessageRPC", "Tipo de parâmetro de saída inválido.")
+                        os.exit(1)
+                    else
+                        local length = tostring(arguments_out[index])
+                        length = string.len(length)
+                        if (length > 1) then
+                            logger("interface", "Tipo de parametro nao esta de acordo com a IDL.")
+                            os.exit(1)
+                        end
+                    end
+                elseif (arguments_template[index] == "string") then
+                    if (type(arguments_out[index]) ~= "string") then
+                        logger("executeMessageRPC", "Tipo de parâmetro de saída inválido.")
+                        os.exit(1)
+                    end
+                elseif (arguments_template[index] == "void") then
+                    if (arguments_out[index] ~= nil) then
+                        logger("executeMessageRPC", "Tipo de parâmetro de saída inválido.")
+                        os.exit(1)
+                    end
+                end
+            end
+        end
+    end
+    
     local ret = nil
     if (next(temp) == nil) then
         ret = {"void"}

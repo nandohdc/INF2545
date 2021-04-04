@@ -18,7 +18,7 @@ local struct_servant = {
     for index = 1, 5 do
       number_one = number_one + 1.1
     end
-    return number_one, number_two
+    return number_one, struct_person
    end,
    boo =
    function (teste)
