@@ -10,8 +10,8 @@
 --
 -----------------------------------------------------------------------
 local socket = require("socket")
-local dumper = require "pl.pretty"
-local table_counter = require "pl.tablex"
+local dumper = require "penlight-lua/pretty"
+local table_counter = require "penlight-lua/tablex"
 local json = require "json-lua/json"
 
 local librpc = {}
@@ -313,7 +313,7 @@ function librpc.createProxy(ip, port, idlFile)
                 local local_port = port
                 local client = nil
 
-                if (local_ip == nil) then
+                if (local_ip == nil or local_ip == "") then
                     logger("createProxy", "Nenhum Internet Protocol foi fornecido")
                     local_ip = socket.dns.toip(socket.dns.gethostname())
                     logger("createProxy", "Conectando ao Internet Protocol de Local Host - IP: " .. local_ip)
@@ -459,7 +459,7 @@ function executeMessageRPC(client, message)
         logger("executeMessageRPC", "Erro - O Endereço de Internet Protocol do Cliente é nil.")
         os.exit(1)
     end
-    dumper.dump(message)
+    -- dumper.dump(message)
     Func_string = 'return Servants["' .. server .. '"].' .. message["func"] .. "("
     for index, item in pairs(message.parameters) do
         if (type(item) == "string") then
@@ -719,7 +719,7 @@ function encodeMSG(object)
     end
     message = json.encode(object)
     logger("encodeMSG", "Mensagem codificada.")
-    print(message)
+    -- print(message)
     return message
 end
 
@@ -731,7 +731,7 @@ function decodeMSG(JSONobject)
     end
     object = json.decode(JSONobject)
     logger("decodeMSG", "Mensagem decodificada.")
-    dumper.dump(object)
+    -- dumper.dump(object)
     return object
 end
 

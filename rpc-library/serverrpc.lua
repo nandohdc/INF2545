@@ -8,13 +8,11 @@
 --
 -----------------------------------------------------------------------
 local librpc = require "luarpc"
-local dumper = require "pl.pretty"
 
 local struct_servant = {
    foo =
    function (number_one, character, struct_person, number_two)
     print(number_one, type(character), struct_person, number_two)
-    dumper.dump(struct_person)
     for index = 1, 5 do
       number_one = number_one + 1.1
     end
@@ -27,7 +25,7 @@ local struct_servant = {
 }
 
 -- cria servidores:
-local serv1 = librpc.createServant(struct_servant, "interface.idl", nil, 5555)
+local serv1 = librpc.createServant(struct_servant, "interface.idl", arg[1], arg[2])
 if (serv1 == nil) then
   logger("ServerRPC", "Não possível criar um servant.")
   os.exit(1)
