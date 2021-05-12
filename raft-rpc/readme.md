@@ -1,5 +1,5 @@
 # Trabalho 2 - Sistemas Distribuídos
-## Data de entrega: 12/5
+## Data de entrega: 14/5
 
 Implementação do Algoritmo Raft (eleição de lider)
 Nesse trabalho, você deve implementar em Lua a parte de eleição de lider do algoritmo de consenso Raft.
