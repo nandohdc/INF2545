@@ -159,7 +159,7 @@ local function createStubs(local_replica_obj, local_my_configs, local_servers, l
       end
 
       local file = assert(io.open("log"..local_replica_obj.get_id()..".txt", "a+"))
-      file:write(os.date("%Y-%m-%d %H:%M:%S"),",", local_replica_obj.get_id(),",","ACTION: REQUEST VOTE", ",", "REPLICA_ID: "..local_replica_obj.get_id(), ",","CANIDATE_ID: "..candidate_hash_id, ",", "REPLICA_TERM"..local_replica_obj.get_term(), ",", "CANDIDATE_TERM: "..candidate_term, ",", "RESULT: "..canVote)
+      file:write(os.date("%Y-%m-%d %H:%M:%S"),",", local_replica_obj.get_id(),",","REQUEST VOTE", ",", "REPLICA_ID: "..local_replica_obj.get_id(), ",","CANIDATE_ID: "..candidate_hash_id, ",", "REPLICA_TERM: "..local_replica_obj.get_term(), ",", "CANDIDATE_TERM: "..candidate_term, ",", "RESULT: "..canVote)
       file:write("\n")
       file:close()
       -- print("OK3")
@@ -224,14 +224,14 @@ local function createStubs(local_replica_obj, local_my_configs, local_servers, l
             local acknowledge, beat = instance.appendEntries(local_replica_obj.get_id(), local_replica_obj.get_term())
 
             if (acknowledge == "__ERROR_CONN") then
-              
+              librpc.logger("Execute","Connection Problem. Removing Replica - ID:"..local_replica_obj.get_id())
               file:write(os.date("%Y-%m-%d %H:%M:%S"),",", local_replica_obj.get_id(),","," REMOVING REPLICA")
               file:write("\n")
               file:close()
               table.remove(proxies_connection, index)
               local_replica_obj.set_replicas(local_replica_obj.get_replicas() - 1)
+
             else
-            
               file = assert(io.open("log"..local_replica_obj.get_id()..".txt", "a+"))
               file:write(os.date("%Y-%m-%d %H:%M:%S"),",", local_replica_obj.get_id(),",","RECEIVED HEARTBEAT", "REPLICA_ID: ".. local_replica_obj.get_id(), ",", "REPLICA_TERM: "..local_replica_obj.get_term())
               file:write("\n")
@@ -247,12 +247,12 @@ local function createStubs(local_replica_obj, local_my_configs, local_servers, l
           end
           if (counter.size(proxies_connection) + 1 == local_replica_obj.get_replicas()) then
             file = assert(io.open("log"..local_replica_obj.get_id()..".txt", "a+"))
-            file:write(os.date("%Y-%m-%d %H:%M:%S"),",", local_replica_obj.get_id(),",","HEARTBEAT MISSED! TOTAL RECEIVED: ", counter.size(proxies_connection))
+            file:write(os.date("%Y-%m-%d %H:%M:%S"),",", local_replica_obj.get_id(),",","HEARTBEAT SUCCEED! TOTAL RECEIVED: ", counter.size(proxies_connection))
             file:write("\n")
             file:close()
           else
             file = assert(io.open("log"..local_replica_obj.get_id()..".txt", "a+"))
-            file:write(os.date("%Y-%m-%d %H:%M:%S"),",", local_replica_obj.get_id(),",","HEARTBEAT SUCCEED! TOTAL RECEIVED: ", counter.size(proxies_connection))
+            file:write(os.date("%Y-%m-%d %H:%M:%S"),",", local_replica_obj.get_id(),",","HEARTBEAT MISSED! TOTAL RECEIVED: ", counter.size(proxies_connection))
             file:write("\n")
             file:close()
           end
@@ -261,9 +261,8 @@ local function createStubs(local_replica_obj, local_my_configs, local_servers, l
         if local_replica_obj.check_leader() then
           local new_time = local_replica_obj.generateRandomWait()
           librpc.wait(new_time)
-
         else
-          librpc.wait(new_heartbeat)
+          librpc.wait(local_replica_obj.generateRandomHeartbeat())
         end
 
         if (not local_replica_obj.check_leader()) then
@@ -276,7 +275,7 @@ local function createStubs(local_replica_obj, local_my_configs, local_servers, l
             local_replica_obj.set_votes(local_replica_obj.get_votes() + 1)
 
             local file = assert(io.open("log"..local_replica_obj.get_id()..".txt", "a+"))
-            file:write(os.date("%Y-%m-%d %H:%M:%S"),",", local_replica_obj.get_id(),",","BEGIN ELECTION", ",", local_replica_obj.get_term())
+            file:write(os.date("%Y-%m-%d %H:%M:%S"),",", local_replica_obj.get_id(),",","BEGIN ELECTION", ",", ",", "REPLICA_ID: "..local_replica_obj.get_id(), ",", "REPLICA_TERM: "..local_replica_obj.get_term())
             file:write("\n")
             file:close()
 
@@ -286,6 +285,7 @@ local function createStubs(local_replica_obj, local_my_configs, local_servers, l
               local acknowledge, vote = instance.requestVotes(local_replica_obj.get_id(), local_replica_obj.get_term())
           
               if acknowledge == "__ERROR_CONN" then
+                librpc.logger("Execute","Connection Problem. Removing Replica - ID:"..local_replica_obj.get_id())
                 file = assert(io.open("log"..local_replica_obj.get_id()..".txt", "a+"))
                 file:write(os.date("%Y-%m-%d %H:%M:%S"),",", local_replica_obj.get_id(),",","REMOVING REPLICA")
                 file:write("\n")
@@ -294,11 +294,15 @@ local function createStubs(local_replica_obj, local_my_configs, local_servers, l
                 if vote == "YES" then
                   local countVote = local_replica_obj.get_votes(local_replica_obj.set_votes(local_replica_obj.get_votes() + 1))
                   file = assert(io.open("log"..local_replica_obj.get_id()..".txt", "a+"))
-                  file:write(os.date("%Y-%m-%d %H:%M:%S"),",", local_replica_obj.get_id(),",","RECEIVED VOTE. TOTAL VOTES:", "," , local_replica_obj.get_votes())
+                  file:write(os.date("%Y-%m-%d %H:%M:%S"),",", local_replica_obj.get_id(),",","RECEIVED VOTE. TOTAL VOTES: "..local_replica_obj.get_votes())
                   file:write("\n")
                   file:close()
                   if (countVote >= local_replica_obj.get_majority()) then
                     librpc.logger("Execute", "SRV"..local_replica_obj.get_id().." ELECTED AS LEADER.".."Total Votes:"..local_replica_obj.get_votes())
+                    file = assert(io.open("log"..local_replica_obj.get_id()..".txt", "a+"))
+                    file:write(os.date("%Y-%m-%d %H:%M:%S"),",", local_replica_obj.get_id(),",","ELECTED AS LEADER: "..local_replica_obj.get_id(),",","TOTAL VOTES: "..local_replica_obj.get_votes())
+                    file:write("\n")
+                    file:close()
                     local_replica_obj.set_state("LEADER")
                     break
                   end
@@ -337,13 +341,8 @@ function Main()
   local replica_obj = {}
   local instances = nil
   local interface_path = nil
-  local timeout = 4
+  local timeout = nil
   servers, myconfig, instances, interface_path = checkConfigs(configs, hash_id)
-
-  local file = assert(io.open("log"..hash_id..".txt", "w+"))
-  file:write("DATE", ",", "SRVID", ",", "ACTION", "ID1", ",", "ID2", ",", "ID3", ",", "ID4", ",", "RSLT")
-  file:write("\n")
-  file:close()
 
   if servers == nil then
       return false
@@ -370,6 +369,10 @@ function Main()
     librpc.logger("Main", "Não foi possível criar uma replica.")
     return false
   end
+
+  local file = assert(io.open("log"..myconfig[1]["HASHID"]..".txt", "w"))
+  file:write("\n")
+  file:close()
 
   librpc.createServant(createStubs(replica_obj, myconfig, servers, math.random(1,10)), interface_path, myconfig[1]["PORT"])
   librpc.waitIncoming()

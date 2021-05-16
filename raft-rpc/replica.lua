@@ -89,7 +89,7 @@ function replica.new(new_id, new_number_replicas, new_seed)
     end
 
     self.set_votes = function (new_votes)
-        print("VOTES: "..new_votes)
+        -- print("VOTES: "..new_votes)
         self.votes = new_votes
     end
 
@@ -113,18 +113,18 @@ function replica.new(new_id, new_number_replicas, new_seed)
     self.generateRandomWait = function ()
         local random_time = 0
         math.randomseed(os.time())
-        random_time = (math.random(1,100)/100)
-        random_time = (math.random(1,100)/100)
-        random_time = (math.random(1,100)/100)
+        random_time = (math.random(1,40)/10)
+        random_time = (math.random(1,40)/10)
+        random_time = (math.random(1,40)/10)
         return random_time
     end
 
     self.generateRandomHeartbeat = function ()
         local new_heartbeat = 0
         math.randomseed(os.time())
-        new_heartbeat = (math.random(1,100)/100)
-        new_heartbeat = (math.random(1,100)/100)
-        new_heartbeat = (math.random(1,100)/100)
+        new_heartbeat = (math.random(60,120)/10)
+        new_heartbeat = (math.random(60,120)/10)
+        new_heartbeat = (math.random(60,120)/10)
         return new_heartbeat
     end
 
