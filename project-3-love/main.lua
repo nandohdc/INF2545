@@ -63,7 +63,7 @@ function love.load(arg)
         ))
 
         table.insert(buttons, new_button(
-            "Exit",
+            "Sair",
             function ()
                 love.event.quit()
             end
@@ -77,8 +77,8 @@ function love.update(dt)
 end
 
 function love.draw()
-    local window_width = love.graphics.getWidth()/4
-    local window_height = love.graphics.getHeight()/2
+    local window_width = love.graphics.getWidth()
+    local window_height = love.graphics.getHeight()
     local button_height = 64
     local button_width = window_width * (1/3)
     local margin = 16
@@ -90,7 +90,7 @@ function love.draw()
 
         button.last = button.now
 
-        local x = ((window_width * 0.5) - button_width * 0.5)
+        local x = ((window_width * 0.5) -  button_width)
         local y = (window_height* 0.5) - (total_height * 0.5) + cursor_y
 
         local color = {0.4, 0.4, 0.5, 1.0}
@@ -120,11 +120,13 @@ function love.draw()
         love.graphics.setColor(0, 0, 0, 1)
         local textW = font:getWidth(button.text)
         local textH = font:getHeight(button.text)
+        local fx = ((window_width * 0.5)  -  0.5 * button_width) - textW * 0.5
+        local fy = y + textH * 0.5
         love.graphics.print(
             button.text,
             font,
-            (window_width * 0.5) - textW * 0.5,
-            y + textH * 0.5
+            fx,
+            fy
         )
         cursor_y = cursor_y + (button_height + margin)
 
@@ -134,10 +136,11 @@ function love.draw()
 
         
     end
-
+    local tx = ((window_width * 0.5) - button_width * 0.5) + 1.5*button_width
+    local ty = (window_height* 0.5) - (total_height * 0.5)
     love.graphics.rectangle("line",
-        ((window_width * 0.5) - button_width * 0.5) + 1.5*button_width,
-        (window_height* 0.5) - (total_height * 0.5),
+        tx,
+        ty,
         button_width * 3.5,
         button_height * 3.5)
     
