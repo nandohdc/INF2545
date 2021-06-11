@@ -1,4 +1,5 @@
 -- local mqtt = require("mqtt_library")
+local json = require("json.lua")
 
 NUMBER_ARGUMENTS = 1
 
