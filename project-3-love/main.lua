@@ -1,4 +1,4 @@
-
+-- local mqtt = require("mqtt_library")
 
 NUMBER_ARGUMENTS = 1
 
@@ -6,13 +6,11 @@ local configs = {}
 local buttons = {}
 local font = nil
 
-
-function logger(name, activity)
+local function logger(name, activity)
     print("[+] " .. name .. ": ", activity)
 end
 
-
-function new_button(text, ftn)
+local function new_button(text, ftn)
     return {
         text = text,
         ftn = ftn,
@@ -21,7 +19,7 @@ function new_button(text, ftn)
     }
 end
 
-function check_config(arguments)
+local function check_config(arguments)
     if arguments ~= nil then
         if #arguments ~= NUMBER_ARGUMENTS then
             logger("check_config", "Número de argumentos inválido.")
@@ -34,7 +32,7 @@ function check_config(arguments)
     return false
 end
 
-function logging(filename, node_id, event)
+local function logging(filename, node_id, event)
     local file = nil
     file = assert(io.open(filename, "a+"))
     file:write(os.date("%Y-%m-%d %H:%M:%S"), " , ", node_id, " , ", event)
@@ -43,22 +41,39 @@ function logging(filename, node_id, event)
 end
 
 function love.load(arg)
+
     local filename = "log"..os.date("%Y-%m-%d %H:%M:%S")..".csv"
     -- logging(filename, "HASH1", "Oi")
+
     if check_config(arg) then
         font = love.graphics.newFont(32)
 
         table.insert(buttons, new_button(
             "Evento 1",
             function ()
-                print("Ok")
+                print("Temperatura alta")
             end
         ))
 
         table.insert(buttons, new_button(
             "Evento 2",
             function ()
-                print("Ok")
+                print("Umidade Alta")
+            end
+        ))
+
+
+        table.insert(buttons, new_button(
+            "Consulta 1",
+            function ()
+                print("Temperatura alta")
+            end
+        ))
+
+        table.insert(buttons, new_button(
+            "Consulta 2",
+            function ()
+                print("Umidade alta")
             end
         ))
 
@@ -71,9 +86,8 @@ function love.load(arg)
     else
         love.event.quit()
     end
-end
 
-function love.update(dt)
+    -- Aqui que se inscreve nos tópicos do MQTT
 end
 
 function love.draw()
@@ -85,8 +99,7 @@ function love.draw()
     local total_height = (button_height + 16) * #buttons
     local cursor_y = 0
                           
-
-    for i, button in ipairs(buttons) do
+    for _, button in ipairs(buttons) do
 
         button.last = button.now
 
@@ -111,12 +124,11 @@ function love.draw()
 
         love.graphics.setColor(unpack(color))
         love.graphics.rectangle("fill",
-        x,
-        y,
-        button_width,
-        button_height
+            x,
+            y,
+            button_width,
+            button_height
         )
-
         love.graphics.setColor(0, 0, 0, 1)
         local textW = font:getWidth(button.text)
         local textH = font:getHeight(button.text)
@@ -128,6 +140,7 @@ function love.draw()
             fx,
             fy
         )
+
         cursor_y = cursor_y + (button_height + margin)
 
         color = {1, 1, 1, 1}
@@ -136,15 +149,22 @@ function love.draw()
 
         
     end
+    
     local tx = ((window_width * 0.5) - button_width * 0.5) + 1.5*button_width
     local ty = (window_height* 0.5) - (total_height * 0.5)
     love.graphics.rectangle("line",
         tx,
         ty,
         button_width * 3.5,
-        button_height * 3.5)
+        button_height * 3.5
+    )
     
-    love.graphics.printf("OI.OI.OI.OI.OI.OI.OI.OI.OI.OI.", ((window_width * 0.5) - button_width * 0.5) + 1.5*button_width, (window_height* 0.5) - (total_height * 0.5), button_width * 3.5)
+    love.graphics.printf("OI.OI.OI.OI.OI.OI.OI.OI.OI.OI.", 
+        ((window_width * 0.5) - button_width * 0.5) + 1.5*button_width, 
+        (window_height* 0.5) - (total_height * 0.5), button_width * 3.5
+    )
+end
 
-
+-- Loop para tratar os eventos
+function love.update(dt)
 end
