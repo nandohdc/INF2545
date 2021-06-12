@@ -22,7 +22,7 @@ do
 done
 
 for i in $(seq 1 $nodes);
-    do eval "love . i"; 
+    do eval "love . i" &
 done
 
 echo "Number of nodes: $nodes";
