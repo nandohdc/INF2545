@@ -1,7 +1,5 @@
--- local mqtt = require("mqtt_library")
-
-package.path = "json.lua/?.lua;" .. package.path
-local json = require("json")
+local mqtt = require "mqtt_library"
+local json = require "json-lua/json"
 
 print(json.encode({}))
 
