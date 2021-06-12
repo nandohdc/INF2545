@@ -3,7 +3,7 @@ local json = require "json-lua/json"
 
 print(json.encode({}))
 
-NUMBER_ARGUMENTS = 1
+NUMBER_ARGUMENTS = 2
 
 local configs = {}
 local buttons = {}
@@ -28,11 +28,28 @@ local function check_config(arguments)
             logger("check_config", "Número de argumentos inválido.")
             return false
         else
-            return true
+            if type(arguments[1]) ~= "string" then
+                return false
+            end
+
+            if type(tonumber(arguments[2])) ~= "number" then
+                return false
+            end
+
+            return arguments
         end
     end
     logger("check_config", "Nenhum argumento foi fornecido.")
     return false
+end
+
+local function set_config(node_id, number_of_nodes)
+    local offset_height = 145
+    local screen_width, screen_height = love.window.getDesktopDimensions()
+    local window_width = screen_width/(configs[2]/2)
+    local window_height = (screen_height - offset_height)/2
+    love.window.setMode(window_width, window_height, nil)
+
 end
 
 local function logging(filename, node_id, event)
@@ -47,8 +64,11 @@ function love.load(arg)
 
     local filename = "log"..os.date("%Y-%m-%d %H:%M:%S")..".csv"
     -- logging(filename, "HASH1", "Oi")
+    configs = check_config(arg)
+    if configs ~= false then
+        print(unpack(configs))
+        set_config(configs[1], configs[2])
 
-    if check_config(arg) then
         font = love.graphics.newFont(32)
 
         table.insert(buttons, new_button(
@@ -94,8 +114,7 @@ function love.load(arg)
 end
 
 function love.draw()
-    local window_width = love.graphics.getWidth()
-    local window_height = love.graphics.getHeight()
+    local window_width, window_height = love.window.getMode()
     local button_height = 64
     local button_width = window_width * (1/3)
     local margin = 16
