@@ -12,7 +12,7 @@ end
 
 function love.load()
   controle = false
-  mqtt_client = mqtt.client.create("mosquitto.inf.puc-rio.br", 1883, mqttcb)
+  mqtt_client = mqtt.client.create("34.145.30.230", 1883, mqttcb)
   mqtt_client:connect("cliente love")
   mqtt_client:subscribe({"controle"})
 end

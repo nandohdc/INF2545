@@ -7,6 +7,7 @@ NUMBER_ARGUMENTS = 2
 
 local configs = {}
 local buttons = {}
+local mqtt_client = nil
 local font = nil
 
 local function logger(name, activity)
@@ -55,7 +56,7 @@ local function set_config(node_id, number_of_nodes)
     if tonumber(node_id) <= math.ceil(number_of_nodes/2) then
         love.window.setPosition((node_id-1)*window_width, 1, 1)
     else
-        love.window.setPosition((node_id - number_of_nodes/2 - 1 )*window_width, window_height + margin_height, 1) 
+        love.window.setPosition((node_id - number_of_nodes/2 - 1 )*window_width, window_height + margin_height, 1)
     end
 
 end
@@ -68,22 +69,43 @@ local function logging(filename, node_id, event)
     file:close()
 end
 
+local function encode_message(new_sender, new_recipient, new_message)
+    local message = {sender = new_sender, recipient =  new_recipient, payload = new_message}
+    local message_encoded = json.encode(message)
+    return message_encoded
+end
+
+local function decode_message(new_encoded_message)
+    local decoded_message = json.decode(new_encoded_message)
+    return decoded_message
+end
+
+function mqttcb(topic, message)
+   print("Received: " .. topic .. ": " .. message)
+end
+
 function love.load(arg)
-    
+
     configs = check_config(arg)
-    local filename = "log"..configs[1]..".csv"
+    local node_id = "NODE-"..configs[1]
+    local filename = "log"..node_id..".csv"
+
     if configs ~= false then
-        print(unpack(configs))
+        mqtt_client = mqtt.client.create("34.145.30.230", 1883, mqttcb)
+        mqtt_client:connect(node_id)
+        mqtt_client:subscribe({"teste"})
+
         set_config(configs[1], configs[2])
 
-        font = love.graphics.newFont(32)
+        font = love.graphics.newFont(24)
 
         table.insert(buttons, new_button(
             "Evento 1",
             function ()
                 local message = "Temperatura alta"
-                print(message)
-                logging(filename, "NODE"..configs[1], message)
+                print(encode_message(configs[1], configs[2], message))
+                logging(filename, "NODE"..configs[1], encode_message(configs[1], configs[2], message))
+                mqtt_client:publish("teste", encode_message(configs[1], configs[2], message))
             end
         ))
 
@@ -125,7 +147,6 @@ function love.load(arg)
     else
         love.event.quit()
     end
-
     -- Aqui que se inscreve nos tópicos do MQTT
 end
 
@@ -202,4 +223,5 @@ end
 
 -- Loop para tratar os eventos
 function love.update(dt)
+    mqtt_client:handler()
 end
