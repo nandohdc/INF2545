@@ -69,10 +69,9 @@ local function logging(filename, node_id, event)
 end
 
 function love.load(arg)
-
-    local filename = "log"..os.date("%Y-%m-%d %H:%M:%S")..".csv"
-    -- logging(filename, "HASH1", "Oi")
+    
     configs = check_config(arg)
+    local filename = "log"..configs[1]..".csv"
     if configs ~= false then
         print(unpack(configs))
         set_config(configs[1], configs[2])
@@ -82,14 +81,18 @@ function love.load(arg)
         table.insert(buttons, new_button(
             "Evento 1",
             function ()
-                print("Temperatura alta")
+                local message = "Temperatura alta"
+                print(message)
+                logging(filename, "NODE"..configs[1], message)
             end
         ))
 
         table.insert(buttons, new_button(
             "Evento 2",
             function ()
-                print("Umidade Alta")
+                local message = "Umidade Alta"
+                print(message)
+                logging(filename, "NODE"..configs[1], message)
             end
         ))
 
@@ -97,20 +100,25 @@ function love.load(arg)
         table.insert(buttons, new_button(
             "Consulta 1",
             function ()
-                print("Temperatura alta")
+                local message = "Temperatura alta"
+                print(message)
+                logging(filename, "NODE"..configs[1], message)
             end
         ))
 
         table.insert(buttons, new_button(
             "Consulta 2",
             function ()
-                print("Umidade alta")
+                local message = "Umidade Alta"
+                print(message)
+                logging(filename, "NODE"..configs[1], message)
             end
         ))
 
         table.insert(buttons, new_button(
             "Sair",
             function ()
+                logging(filename, "NODE"..configs[1], "Encerrando o programa")
                 love.event.quit()
             end
         ))
@@ -124,7 +132,7 @@ end
 function love.draw()
     local window_width, window_height = love.window.getMode()
     local button_height = 64
-    local button_width = window_width * (1/3)
+    local button_width = window_width * (1/4)
     local margin = 16
     local total_height = (button_height + 16) * #buttons
     local cursor_y = 0
@@ -133,7 +141,7 @@ function love.draw()
 
         button.last = button.now
 
-        local x = ((window_width * 0.5) -  button_width)
+        local x = ((window_width * 0.5) -  (window_width * 0.45))
         local y = (window_height* 0.5) - (total_height * 0.5) + cursor_y
 
         local color = {0.4, 0.4, 0.5, 1.0}
@@ -162,7 +170,7 @@ function love.draw()
         love.graphics.setColor(0, 0, 0, 1)
         local textW = font:getWidth(button.text)
         local textH = font:getHeight(button.text)
-        local fx = ((window_width * 0.5)  -  0.5 * button_width) - textW * 0.5
+        local fx = ((window_width * 0.5)  -  0.725*(window_width * 0.45) - 0.5*textW)
         local fy = y + textH * 0.5
         love.graphics.print(
             button.text,
@@ -180,19 +188,16 @@ function love.draw()
         
     end
     
-    local tx = ((window_width * 0.5) - button_width * 0.5) + 1.5*button_width
-    local ty = (window_height* 0.5) - (total_height * 0.5)
+    local tx = ((window_width * 0.5) -  (window_width * 0.45) + button_width) + 10
+    local ty = (window_height* 0.5) - (total_height * 0.5) + 16
     love.graphics.rectangle("line",
         tx,
         ty,
-        button_width * 3.5,
-        button_height * 3.5
+        window_width - ((window_width * 0.5) -  (window_width * 0.45) + button_width) - 15,
+        window_height - 10
     )
-    
-    love.graphics.printf("OI.OI.OI.OI.OI.OI.OI.OI.OI.OI.", 
-        ((window_width * 0.5) - button_width * 0.5) + 1.5*button_width, 
-        (window_height* 0.5) - (total_height * 0.5), button_width * 3.5
-    )
+
+    love.graphics.printf("OI.OI.OI.OI.OI.OI.OI.OI.OI.OI.", tx, ty, window_height - 10, "left", nil, nil, nil, nil, nil, nil, nil)
 end
 
 -- Loop para tratar os eventos
