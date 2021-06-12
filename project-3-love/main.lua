@@ -48,7 +48,15 @@ local function set_config(node_id, number_of_nodes)
     local screen_width, screen_height = love.window.getDesktopDimensions()
     local window_width = screen_width/(configs[2]/2)
     local window_height = (screen_height - offset_height)/2
+    local margin_height = 80
+    love.window.setTitle("NODE - "..node_id)
     love.window.setMode(window_width, window_height, nil)
+
+    if tonumber(node_id) <= math.ceil(number_of_nodes/2) then
+        love.window.setPosition((node_id-1)*window_width, 1, 1)
+    else
+        love.window.setPosition((node_id - number_of_nodes/2 - 1 )*window_width, window_height + margin_height, 1) 
+    end
 
 end
 
