@@ -4,25 +4,13 @@
 2021-06-12 19:15:34 , NODE1 , Encerrando o programa
 2021-06-12 19:32:46 , NODE1 , {"payload":"NODE-1","recipient":"broadcast","sender":"1"}
 2021-06-12 20:05:10 , NODE1 , {"payload":"NODE-1","recipient":"broadcast","sender":"1"}
-2021-06-13 20:00:45 , NODENODE-1 , {"payload":"NODE-1","recipient":"broadcast","sender":"NODE-1"}
-2021-06-13 20:01:00 , NODENODE-1 , {"payload":"NODE-1","recipient":"broadcast","sender":"NODE-1"}
-2021-06-13 20:01:26 , NODENODE-1 , {"payload":"NODE-1","recipient":"broadcast","sender":"NODE-1"}
-2021-06-13 20:01:33 , NODENODE-1 , {"payload":"NODE-1","recipient":"broadcast","sender":"NODE-1"}
-2021-06-13 20:01:44 , NODENODE-1 , {"payload":"NODE-1","recipient":"broadcast","sender":"NODE-1"}
-2021-06-13 20:02:11 , NODENODE-1 , {"payload":"NODE-1","recipient":"broadcast","sender":"NODE-1"}
-2021-06-13 20:02:45 , NODENODE-1 , {"payload":"NODE-1","recipient":"broadcast","sender":"NODE-1"}
-2021-06-13 20:03:08 , NODENODE-1 , {"payload":"NODE-1","recipient":"broadcast","sender":"NODE-1"}
-2021-06-13 20:03:21 , NODENODE-1 , {"payload":"NODE-1","recipient":"broadcast","sender":"NODE-1"}
-2021-06-13 20:03:48 , NODENODE-1 , {"payload":"NODE-1","recipient":"broadcast","sender":"NODE-1"}
-2021-06-13 20:04:04 , NODENODE-1 , {"payload":"NODE-1","recipient":"broadcast","sender":"NODE-1"}
-2021-06-13 20:04:23 , NODENODE-1 , {"payload":"NODE-1","recipient":"broadcast","sender":"NODE-1"}
-2021-06-13 20:04:36 , NODENODE-1 , {"payload":"NODE-1","recipient":"broadcast","sender":"NODE-1"}
-2021-06-13 20:05:03 , NODENODE-1 , {"payload":"NODE-1","recipient":"broadcast","sender":"NODE-1"}
-2021-06-13 20:05:37 , NODENODE-1 , {"payload":"NODE-1","recipient":"broadcast","sender":"NODE-1"}
-2021-06-13 20:05:39 , NODENODE-1 , Encerrando o programa
-2021-06-13 20:05:47 , NODENODE-1 , {"payload":"NODE-1","recipient":"broadcast","sender":"NODE-1"}
-2021-06-13 20:06:33 , NODENODE-1 , {"payload":"NODE-1","recipient":"broadcast","sender":"NODE-1"}
-2021-06-13 20:06:38 , NODENODE-1 , Encerrando o programa
-2021-06-13 20:07:05 , NODENODE-1 , {"payload":"NODE-1","recipient":"broadcast","sender":"NODE-1"}
-2021-06-13 20:07:13 , NODENODE-1 , {"payload":"Temperatura alta","recipient":2,"sender":"NODE-1"}
-2021-06-13 20:07:17 , NODENODE-1 , Encerrando o programa
+2021-06-13 20:16:09 , NODE1 , {"payload":"1","recipient":"broadcast","sender":"1"}
+2021-06-13 20:16:16 , NODE1 , Temperatura alta
+2021-06-13 20:16:17 , NODE1 , Umidade Alta
+2021-06-13 20:16:17 , NODE1 , {"payload":"Temperatura alta","recipient":2,"sender":"1"}
+2021-06-13 20:16:21 , NODE1 , Encerrando o programa
+2021-06-13 20:24:40 , NODE1 , {"payload":"1","recipient":"broadcast","sender":"1"}
+2021-06-13 20:24:44 , NODE1 , Encerrando o programa
+2021-06-13 20:28:39 , NODE1 , {"payload":"1","recipient":"broadcast","sender":"1"}
+2021-06-13 20:28:47 , NODE1 , {"payload":"Temperatura alta","recipient":2,"sender":"1"}
+2021-06-13 20:28:48 , NODE1 , Encerrando o programa

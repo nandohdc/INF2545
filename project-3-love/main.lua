@@ -79,19 +79,23 @@ function love.load(arg)
         node = node_obj
         node:setId(config.id)
         node:setTopic(config.topic)
+        node:setSubscriptions(config.subscribedTo)
 
         local num_nodes = config.numberOfNodes
-        local node_id = "NODE-"..config.id
-        local first_topic = {"broadcast"}
-        local filename = "log"..node_id..".csv"
+        local node_id = tostring(config.id)
+        local filename = "logNODE-"..node_id..".csv"
 
         -- Depois de verificar as configuracoes e todas estarem corretas, vem o mqtt
-        -- Aqui que se inscreve nos tópicos do MQTT
         mqtt_client = mqtt.client.create("34.145.30.230", 1883, mqttcb)
         mqtt_client:connect(node_id)
-        mqtt_client:subscribe(first_topic) -- Avisar que entrou na brincadeira
+
+        -- Se inscreve nos tópicos de interesse
+        for _, subscription in ipairs(node.subscriptions) do
+            mqtt_client:subscribe({subscription})
+        end
+
         logger.writeLog(filename, "NODE"..node_id, encode_message(node_id, "broadcast", node_id)) -- salva em arquivo
-        mqtt_client:publish("broadcast", encode_message(node_id, "broadcast", node_id)) -- envia msg via mqtt
+        mqtt_client:publish(node.topic, encode_message(node_id, "broadcast", node_id)) -- envia msg via mqtt
 
         set_config(node.id, num_nodes) --funcao de configuracao das janelas
 
@@ -103,7 +107,7 @@ function love.load(arg)
                 local message = "Temperatura alta"
                 print(encode_message(node_id, num_nodes, message)) -- print no terminal
                 logger.writeLog(filename, "NODE"..node_id, encode_message(node_id, num_nodes, message)) -- salva em arquivo
-                mqtt_client:publish("teste", encode_message(node_id, num_nodes, message)) -- envia msg via mqtt
+                mqtt_client:publish(node.topic, encode_message(node_id, num_nodes, message)) -- envia msg via mqtt
             end
         ))
 

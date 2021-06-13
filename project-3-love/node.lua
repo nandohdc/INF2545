@@ -5,6 +5,7 @@ local node = {}
 -------------------------------------------------------------------------------
 node.id = nil
 node.topic = nil
+node.subscriptions = nil
 node.neighborList = {} -- The neighbor list can be actively created and maintained
     -- by actively broadcasting a request, or passively, through listening
     -- for other node broadcasts
@@ -20,6 +21,10 @@ end
 
 node.setTopic = function(self, topic)
     self.topic = topic
+end
+
+node.setSubscriptions = function (self, subscriptions)
+    self.subscriptions = subscriptions
 end
 
 -------------------------------------------------------------------------------
