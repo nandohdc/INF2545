@@ -66,8 +66,9 @@ end
 
 local function mqttcb(topic, message)
    print("Received: " .. topic .. ": " .. message)
-   local message = decode_message(message)
-   print(message.sender)
+   local msg = decode_message(message)
+   print(msg.sender)
+   logger.writeLog("logNODE-"..node.id..".csv", "NODE"..node.id, "Received: " .. message)
 end
 
 function love.load(arg)
@@ -94,8 +95,8 @@ function love.load(arg)
             mqtt_client:subscribe({subscription})
         end
 
-        logger.writeLog(filename, "NODE"..node_id, encode_message(node_id, "broadcast", node_id)) -- salva em arquivo
-        mqtt_client:publish(node.topic, encode_message(node_id, "broadcast", node_id)) -- envia msg via mqtt
+        --logger.writeLog(filename, "NODE"..node_id, encode_message(node_id, "broadcast", node_id)) -- salva em arquivo
+        --mqtt_client:publish(node.topic, encode_message(node_id, "broadcast", node_id)) -- envia msg via mqtt
 
         set_config(node.id, num_nodes) --funcao de configuracao das janelas
 

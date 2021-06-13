@@ -14,3 +14,5 @@
 2021-06-13 20:28:39 , NODE1 , {"payload":"1","recipient":"broadcast","sender":"1"}
 2021-06-13 20:28:47 , NODE1 , {"payload":"Temperatura alta","recipient":2,"sender":"1"}
 2021-06-13 20:28:48 , NODE1 , Encerrando o programa
+2021-06-13 20:48:46 , NODE1 , {"payload":"Temperatura alta","recipient":3,"sender":"1"}
+2021-06-13 20:48:50 , NODE1 , Encerrando o programa

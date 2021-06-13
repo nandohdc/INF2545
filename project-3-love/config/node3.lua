@@ -1,6 +1,6 @@
 config = {
-    id = 2,
-    topic = "Test_Node2",
+    id = 3,
+    topic = "Test_Node3",
     subscribedTo = {"Test_Node1"},
     numberOfNodes = 3
 }

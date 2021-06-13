@@ -1,0 +1,4 @@
+2021-06-13 20:48:46 , NODE3 , Received: {"payload":"Temperatura alta","recipient":3,"sender":"1"}
+2021-06-13 20:48:51 , NODE3 , Temperatura alta
+2021-06-13 20:48:52 , NODE3 , Umidade Alta
+2021-06-13 20:48:52 , NODE3 , Encerrando o programa

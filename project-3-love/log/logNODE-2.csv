@@ -9,3 +9,6 @@
 2021-06-13 20:28:41 , NODE2 , {"payload":"2","recipient":"broadcast","sender":"2"}
 2021-06-13 20:28:46 , NODE2 , {"payload":"Temperatura alta","recipient":2,"sender":"2"}
 2021-06-13 20:28:49 , NODE2 , Encerrando o programa
+2021-06-13 20:48:46 , NODE2 , Received: {"payload":"Temperatura alta","recipient":3,"sender":"1"}
+2021-06-13 20:48:53 , NODE2 , Umidade Alta
+2021-06-13 20:48:54 , NODE2 , Encerrando o programa
