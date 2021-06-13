@@ -1,24 +1,15 @@
 local mqtt = require "mqtt_library"
 local json = require "json-lua/json"
+local logger = require "logger"
+local node_obj = require "node"
 
-NUMBER_ARGUMENTS = 2 -- arg1: numero do nó, arg2: numero total de nós
+-- name of the config file of the node
+NUMBER_ARGUMENTS = 1
 
-local configs = {}
+local node = {}
 local buttons = {}
 local mqtt_client = nil
 local font = nil
-
-local function logger(name, activity)
-    print("[+] " .. name .. ": ", activity)
-end
-
-local function logging(filename, node_id, event)
-    local file = nil
-    file = assert(io.open(filename, "a+"))
-    file:write(os.date("%Y-%m-%d %H:%M:%S"), " , ", node_id, " , ", event)
-    file:write("\n")
-    file:close()
-end
 
 local function new_button(text, ftn)
     return {
@@ -29,31 +20,27 @@ local function new_button(text, ftn)
     }
 end
 
-local function check_config(arguments)
+local function isConfigOk(arguments)
     if arguments ~= nil then
         if #arguments ~= NUMBER_ARGUMENTS then
-            logger("check_config", "Número de argumentos inválido.")
+            logger.printLog("check_config", "Número de argumentos inválido.")
             return false
         else
             if type(arguments[1]) ~= "string" then
                 return false
             end
 
-            if type(tonumber(arguments[2])) ~= "number" then
-                return false
-            end
-
-            return arguments
+            return true, arguments[1]
         end
     end
-    logger("check_config", "Nenhum argumento foi fornecido.")
+    logger.printLog("check_config", "Nenhum argumento foi fornecido.")
     return false
 end
 
 local function set_config(node_id, number_of_nodes)
     local offset_height = 145
     local screen_width, screen_height = love.window.getDesktopDimensions()
-    local window_width = screen_width/(configs[2]/2)
+    local window_width = screen_width/(number_of_nodes/2)
     local window_height = (screen_height - offset_height)/2
     local margin_height = 80
     love.window.setTitle("NODE - "..node_id)
@@ -64,7 +51,6 @@ local function set_config(node_id, number_of_nodes)
     else
         love.window.setPosition((node_id - number_of_nodes/2 - 1 )*window_width, window_height + margin_height, 1)
     end
-
 end
 
 local function encode_message(new_sender, new_recipient, new_message)
@@ -78,17 +64,24 @@ local function decode_message(new_encoded_message)
     return decoded_message
 end
 
-function mqttcb(topic, message)
+local function mqttcb(topic, message)
    print("Received: " .. topic .. ": " .. message)
    local message = decode_message(message)
    print(message.sender)
 end
 
 function love.load(arg)
+    local isOk, config_file = isConfigOk(arg)
 
-    configs = check_config(arg)
-    if configs ~= false then
-        local node_id = "NODE-"..configs[1]
+    if isOk then
+        dofile("config/" .. config_file)
+
+        node = node_obj
+        node:setId(config.id)
+        node:setTopic(config.topic)
+
+        local num_nodes = config.numberOfNodes
+        local node_id = "NODE-"..config.id
         local first_topic = {"broadcast"}
         local filename = "log"..node_id..".csv"
 
@@ -97,10 +90,10 @@ function love.load(arg)
         mqtt_client = mqtt.client.create("34.145.30.230", 1883, mqttcb)
         mqtt_client:connect(node_id)
         mqtt_client:subscribe(first_topic) -- Avisar que entrou na brincadeira
-        logging(filename, "NODE"..configs[1], encode_message(configs[1], "broadcast", node_id)) -- salva em arquivo
-        mqtt_client:publish("broadcast", encode_message(configs[1], "broadcast", node_id)) -- envia msg via mqtt
+        logger.writeLog(filename, "NODE"..node_id, encode_message(node_id, "broadcast", node_id)) -- salva em arquivo
+        mqtt_client:publish("broadcast", encode_message(node_id, "broadcast", node_id)) -- envia msg via mqtt
 
-        set_config(configs[1], configs[2]) --funcao de configuracao das janelas
+        set_config(node.id, num_nodes) --funcao de configuracao das janelas
 
         font = love.graphics.newFont(24)
 
@@ -108,9 +101,9 @@ function love.load(arg)
             "Evento 1",
             function ()
                 local message = "Temperatura alta"
-                print(encode_message(configs[1], configs[2], message)) -- print no terminal
-                logging(filename, "NODE"..configs[1], encode_message(configs[1], configs[2], message)) -- salva em arquivo
-                mqtt_client:publish("teste", encode_message(configs[1], configs[2], message)) -- envia msg via mqtt
+                print(encode_message(node_id, num_nodes, message)) -- print no terminal
+                logger.writeLog(filename, "NODE"..node_id, encode_message(node_id, num_nodes, message)) -- salva em arquivo
+                mqtt_client:publish("teste", encode_message(node_id, num_nodes, message)) -- envia msg via mqtt
             end
         ))
 
@@ -119,7 +112,7 @@ function love.load(arg)
             function ()
                 local message = "Umidade Alta"
                 print(message)
-                logging(filename, "NODE"..configs[1], message)
+                logger.writeLog(filename, "NODE"..node_id, message)
             end
         ))
 
@@ -129,7 +122,7 @@ function love.load(arg)
             function ()
                 local message = "Temperatura alta"
                 print(message)
-                logging(filename, "NODE"..configs[1], message)
+                logger.writeLog(filename, "NODE"..node_id, message)
             end
         ))
 
@@ -138,14 +131,14 @@ function love.load(arg)
             function ()
                 local message = "Umidade Alta"
                 print(message)
-                logging(filename, "NODE"..configs[1], message)
+                logger.writeLog(filename, "NODE"..node_id, message)
             end
         ))
 
         table.insert(buttons, new_button(
             "Sair",
             function ()
-                logging(filename, "NODE"..configs[1], "Encerrando o programa")
+                logger.writeLog(filename, "NODE"..node_id, "Encerrando o programa")
                 love.event.quit()
             end
         ))
