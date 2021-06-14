@@ -5,6 +5,7 @@ local node_obj = require "node"
 
 -- name of the config file of the node
 NUMBER_ARGUMENTS = 1
+MQTT_IP = "34.145.30.230"
 
 local node = {}
 local buttons = {}
@@ -87,7 +88,7 @@ function love.load(arg)
         local filename = "logNODE-"..node_id..".csv"
         local file = assert(io.open("log/" .. filename, "w+"))
         -- Depois de verificar as configuracoes e todas estarem corretas, vem o mqtt
-        mqtt_client = mqtt.client.create("34.145.30.230", 1883, mqttcb)
+        mqtt_client = mqtt.client.create(MQTT_IP, 1883, mqttcb)
         mqtt_client:connect(node_id)
 
         -- Se inscreve nos tópicos de interesse

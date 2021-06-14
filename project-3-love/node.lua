@@ -15,7 +15,7 @@ node.eventTable = {}
 -------------------------------------------------------------------------------
 -- Getters and Setters
 -------------------------------------------------------------------------------
-node.setId = function(self, id) 
+node.setId = function(self, id)
     self.id = id
 end
 

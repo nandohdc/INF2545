@@ -21,6 +21,9 @@ do
     esac
 done
 
+eval "rm -rf config/*"
+eval "rm -rf log/*"
+
 for i in $(seq 1 $nodes);
     do echo "config = {id = $i, topic = 'Test_Node$i', subscribedTo = {'Test_Node2'}, numberOfNodes = $nodes}" > "config/node$i.lua"
 done
