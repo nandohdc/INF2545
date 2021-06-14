@@ -22,7 +22,11 @@ do
 done
 
 for i in $(seq 1 $nodes);
-    do eval 'love . $i $nodes' & 
+    do echo "config = {id = $i, topic = 'Test_Node$i', subscribedTo = {'Test_Node2'}, numberOfNodes = $nodes}" > "config/node$i.lua"
+done
+
+for i in $(seq 1 $nodes);
+    do eval "love . node$i.lua" &
 done
 echo "Number of nodes: $nodes";
 wait

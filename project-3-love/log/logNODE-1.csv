@@ -16,3 +16,10 @@
 2021-06-13 20:28:48 , NODE1 , Encerrando o programa
 2021-06-13 20:48:46 , NODE1 , {"payload":"Temperatura alta","recipient":3,"sender":"1"}
 2021-06-13 20:48:50 , NODE1 , Encerrando o programa
+2021-06-14 01:28:48 , NODE1 , {"payload":"Temperatura alta","recipient":4,"sender":"1"}
+2021-06-14 01:28:59 , NODE1 , Umidade Alta
+2021-06-14 01:29:00 , NODE1 , Umidade Alta
+2021-06-14 01:29:00 , NODE1 , Umidade Alta
+2021-06-14 01:29:01 , NODE1 , Umidade Alta
+2021-06-14 01:29:02 , NODE1 , {"payload":"Temperatura alta","recipient":4,"sender":"1"}
+2021-06-14 01:29:27 , NODE1 , Received: {"payload":"Temperatura alta","recipient":4,"sender":"2"}
