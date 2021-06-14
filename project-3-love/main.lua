@@ -175,7 +175,7 @@ function love.draw()
 
         if hover_position then
             color = {0.8, 0.8, 0.9, 1.0}
-        end  
+        end
         
         button.now =  love.mouse.isDown(1)
 
