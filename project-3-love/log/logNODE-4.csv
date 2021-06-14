@@ -1,1 +1,7 @@
-2021-06-14 01:29:27 , NODE4 , Received: {"payload":"Temperatura alta","recipient":4,"sender":"2"}
+2021-06-14 01:33:54 , NODE4 , Received: {"payload":"Temperatura alta","recipient":4,"sender":"2"}
+2021-06-14 01:33:57 , NODE4 , {"payload":"Temperatura alta","recipient":4,"sender":"4"}
+2021-06-14 01:33:57 , NODE4 , {"payload":"Temperatura alta","recipient":4,"sender":"4"}
+2021-06-14 01:33:58 , NODE4 , Umidade Alta
+2021-06-14 01:33:58 , NODE4 , Umidade Alta
+2021-06-14 01:33:58 , NODE4 , Umidade Alta
+2021-06-14 01:34:02 , NODE4 , Encerrando o programa

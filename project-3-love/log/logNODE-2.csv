@@ -1,16 +1,4 @@
-2021-06-12 19:15:20 , NODE2 , {"payload":"Temperatura alta","recipient":"2","sender":"2"}
-2021-06-12 19:15:39 , NODE2 , Encerrando o programa
-2021-06-12 19:32:46 , NODE2 , {"payload":"NODE-2","recipient":"broadcast","sender":"2"}
-2021-06-12 20:05:10 , NODE2 , {"payload":"NODE-2","recipient":"broadcast","sender":"2"}
-2021-06-13 20:16:12 , NODE2 , {"payload":"2","recipient":"broadcast","sender":"2"}
-2021-06-13 20:16:18 , NODE2 , {"payload":"Temperatura alta","recipient":2,"sender":"2"}
-2021-06-13 20:16:18 , NODE2 , Umidade Alta
-2021-06-13 20:16:20 , NODE2 , Encerrando o programa
-2021-06-13 20:28:41 , NODE2 , {"payload":"2","recipient":"broadcast","sender":"2"}
-2021-06-13 20:28:46 , NODE2 , {"payload":"Temperatura alta","recipient":2,"sender":"2"}
-2021-06-13 20:28:49 , NODE2 , Encerrando o programa
-2021-06-13 20:48:46 , NODE2 , Received: {"payload":"Temperatura alta","recipient":3,"sender":"1"}
-2021-06-13 20:48:53 , NODE2 , Umidade Alta
-2021-06-13 20:48:54 , NODE2 , Encerrando o programa
-2021-06-14 01:29:27 , NODE2 , {"payload":"Temperatura alta","recipient":4,"sender":"2"}
-2021-06-14 01:29:27 , NODE2 , Received: {"payload":"Temperatura alta","recipient":4,"sender":"2"}
+2021-06-14 01:33:53 , NODE2 , {"payload":"Temperatura alta","recipient":4,"sender":"2"}
+2021-06-14 01:33:54 , NODE2 , Received: {"payload":"Temperatura alta","recipient":4,"sender":"2"}
+2021-06-14 01:34:01 , NODE2 , Umidade Alta
+2021-06-14 01:34:03 , NODE2 , Encerrando o programa
