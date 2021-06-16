@@ -14,22 +14,20 @@
 # Error Log: Any errors or output associated with the script can be found in /path/to/logfile
 #
 
-while getopts n: flag
+while getopts l:c: flag
 do
     case "${flag}" in
-        n) nodes=${OPTARG};;
+        l) lines=${OPTARG};;
+        c) columns=${OPTARG};;
     esac
 done
 
 eval "rm -rf config/*"
 eval "rm -rf log/*"
 
-for i in $(seq 1 $nodes);
-    do echo "config = {id = $i, topic = 'Test_Node$i', subscribedTo = {'Test_Node2'}, numberOfNodes = $nodes}" > "config/node$i.lua"
-done
+eval "lua config_generator.lua $lines $columns"
 
-for i in $(seq 1 $nodes);
+for i in $(seq 1 $((lines*columns)));
     do eval "love . node$i.lua" &
 done
-echo "Number of nodes: $nodes";
-wait
+echo "Number of nodes: " $((lines*columns));

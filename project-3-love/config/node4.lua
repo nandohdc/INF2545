@@ -1,0 +1,1 @@
+config = {id =4, topic = 'channel4',subscribedTo = {'channel2','channel3'},numberOfNodes = 4}
