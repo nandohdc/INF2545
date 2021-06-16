@@ -11,6 +11,7 @@ local node = {}
 local buttons = {}
 local mqtt_client = nil
 local font = nil
+local display_info = {}
 
 local function new_button(text, ftn)
     return {
@@ -66,9 +67,9 @@ local function decode_message(new_encoded_message)
 end
 
 local function mqttcb(topic, message)
-   print("Received: " .. topic .. ": " .. message)
-   local msg = decode_message(message)
-   print(msg.sender)
+   table.insert(display_info, message)
+   local decoded_message = decode_message(message)
+   print(decoded_message.sender)
    logger.writeLog("logNODE-"..node.id..".csv", "NODE"..node.id, "Received: " .. message)
 end
 
@@ -107,9 +108,11 @@ function love.load(arg)
             "Evento 1",
             function ()
                 local message = "Temperatura alta"
-                print(encode_message(node_id, num_nodes, message)) -- print no terminal
-                logger.writeLog(filename, "NODE"..node_id, encode_message(node_id, num_nodes, message)) -- salva em arquivo
-                mqtt_client:publish(node.topic, encode_message(node_id, num_nodes, message)) -- envia msg via mqtt
+                local encoded_message = encode_message(node_id, num_nodes, message)
+                print(encoded_message) -- print no terminal
+                logger.writeLog(filename, "NODE"..node_id, encoded_message) -- salva em arquivo
+                mqtt_client:publish(node.topic, encoded_message) -- envia msg via mqtt
+                table.insert(display_info, encoded_message)
             end
         ))
 
@@ -117,8 +120,11 @@ function love.load(arg)
             "Evento 2",
             function ()
                 local message = "Umidade Alta"
-                print(message)
-                logger.writeLog(filename, "NODE"..node_id, message)
+                local encoded_message = encode_message(node_id, num_nodes, message)
+                print(encoded_message) -- print no terminal
+                logger.writeLog(filename, "NODE"..node_id, encoded_message) -- salva em arquivo
+                mqtt_client:publish(node.topic, encoded_message) -- envia msg via mqtt
+                table.insert(display_info, encoded_message)
             end
         ))
 
@@ -220,8 +226,20 @@ function love.draw()
         window_width - ((window_width * 0.5) -  (window_width * 0.45) + button_width) - 15,
         window_height - 10
     )
+    local display_numbers_info = math.floor((window_height - 10) / font:getHeight("OI"))
 
-    love.graphics.printf("OI.OI.OI.OI.OI.OI.OI.OI.OI.OI.", tx, ty, window_height - 10, "left", nil, nil, nil, nil, nil, nil, nil)
+    if next(display_info) ~= nil then
+        for i = display_numbers_info, 1, -1 do
+            if display_info[i] ~= nil then
+                local scale = window_width / font:getWidth(display_info[i]) 
+                if scale > 1 then
+                    love.graphics.printf(display_info[i], tx, ty + (i)*20, window_width - 10, "left", nil, nil, nil, nil, nil, nil, nil)
+                else
+                    love.graphics.printf(display_info[i], tx, ty + ((i-1)*scale)*20, window_width - 10, "left", nil, nil, nil, nil, nil, nil, nil)
+                end
+            end
+        end
+    end  
 end
 
 -- Loop para tratar os eventos

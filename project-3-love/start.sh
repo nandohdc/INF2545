@@ -31,3 +31,4 @@ for i in $(seq 1 $((lines*columns)));
     do eval "love . node$i.lua" &
 done
 echo "Number of nodes: " $((lines*columns));
+wait
