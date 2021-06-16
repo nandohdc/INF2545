@@ -1,4 +1,4 @@
-local mqtt = require "mqtt_library"
+local mqtt = require "mqtt-lua/mqtt_library"
 local json = require "json-lua/json"
 local logger = require "logger"
 local node_obj = require "node"
@@ -86,8 +86,8 @@ function love.load(arg)
 
         local num_nodes = config.numberOfNodes
         local node_id = tostring(config.id)
-        local filename = "logNODE-"..node_id..".csv"
-        local file = assert(io.open("log/" .. filename, "w+"))
+        logger:setFilename(node_id)
+        
         -- Depois de verificar as configuracoes e todas estarem corretas, vem o mqtt
         mqtt_client = mqtt.client.create(MQTT_IP, 1883, mqttcb)
         mqtt_client:connect(node_id)
@@ -110,7 +110,7 @@ function love.load(arg)
                 local message = "Temperatura alta"
                 local encoded_message = encode_message(node_id, num_nodes, message)
                 print(encoded_message) -- print no terminal
-                logger.writeLog(filename, "NODE"..node_id, encoded_message) -- salva em arquivo
+                logger.writeLog("NODE"..node_id, encoded_message) -- salva em arquivo
                 mqtt_client:publish(node.topic, encoded_message) -- envia msg via mqtt
                 table.insert(display_info, encoded_message)
             end
@@ -122,19 +122,18 @@ function love.load(arg)
                 local message = "Umidade Alta"
                 local encoded_message = encode_message(node_id, num_nodes, message)
                 print(encoded_message) -- print no terminal
-                logger.writeLog(filename, "NODE"..node_id, encoded_message) -- salva em arquivo
+                logger.writeLog("NODE"..node_id, encoded_message) -- salva em arquivo
                 mqtt_client:publish(node.topic, encoded_message) -- envia msg via mqtt
                 table.insert(display_info, encoded_message)
             end
         ))
-
 
         table.insert(buttons, new_button(
             "Consulta 1",
             function ()
                 local message = "Temperatura alta"
                 print(message)
-                logger.writeLog(filename, "NODE"..node_id, message)
+                logger.writeLog("NODE"..node_id, message)
             end
         ))
 
@@ -143,14 +142,14 @@ function love.load(arg)
             function ()
                 local message = "Umidade Alta"
                 print(message)
-                logger.writeLog(filename, "NODE"..node_id, message)
+                logger.writeLog("NODE"..node_id, message)
             end
         ))
 
         table.insert(buttons, new_button(
             "Sair",
             function ()
-                logger.writeLog(filename, "NODE"..node_id, "Encerrando o programa")
+                logger.writeLog("NODE"..node_id, "Encerrando o programa")
                 love.event.quit()
             end
         ))
