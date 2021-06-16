@@ -1,4 +1,4 @@
-local mqtt = require "mqtt_library"
+local mqtt = require "mqtt-lua/mqtt_library"
 local json = require "json-lua/json"
 local logger = require "logger"
 local node_obj = require "node"
