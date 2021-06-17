@@ -1,10 +1,11 @@
-2021-06-17 13:45:05 , NODE9 , {"payload":"Chegou ao destino!","hops":16,"sender":9,"type":"consulta","recipient":"6","path":"123"}
-2021-06-17 13:45:13 , NODE9 , {"payload":"Consulta 16","hops":13,"sender":9,"type":"consulta","recipient":8,"path":"25412369"}
-2021-06-17 13:45:14 , NODE9 , {"payload":"Consulta 16","hops":9,"sender":9,"type":"consulta","recipient":8,"path":"254123698569"}
-2021-06-17 13:45:15 , NODE9 , {"payload":"Chegou ao destino!","hops":5,"sender":9,"type":"consulta","recipient":"6","path":"2541236985"}
-2021-06-17 13:45:15 , NODE9 , {"payload":"Chegou ao destino!","hops":1,"sender":9,"type":"consulta","recipient":"6","path":"254123"}
-2021-06-17 13:45:19 , NODE9 , {"payload":"Consulta 12","hops":17,"sender":9,"type":"consulta","recipient":6,"path":"4789"}
-2021-06-17 13:45:20 , NODE9 , {"payload":"Chegou ao destino!","hops":13,"sender":9,"type":"consulta","recipient":"8","path":"47"}
-2021-06-17 13:45:23 , NODE9 , {"payload":"Consulta 2","hops":20,"sender":9,"type":"consulta","recipient":8,"path":"9"}
-2021-06-17 13:45:25 , NODE9 , {"payload":"Volta Completa!","hops":0,"sender":9,"type":"consulta","recipient":9,"path":""}
-2021-06-17 13:45:27 , NODE9 , Encerrando o programa
+2021-06-17 14:57:36 , NODE9 , {"payload":"Evento 18","hops":20,"sender":9,"type":"evento","recipient":6}
+2021-06-17 14:57:40 , NODE9 , {"payload":"Consulta 18","hops":16,"sender":9,"type":"consulta","recipient":8,"path":"12369"}
+2021-06-17 14:57:41 , NODE9 , {"payload":"Consulta 18","hops":10,"sender":9,"type":"consulta","recipient":8,"path":"12369852369"}
+2021-06-17 14:57:42 , NODE9 , {"payload":"Consulta 18","hops":4,"sender":9,"type":"consulta","recipient":8,"path":"12369852369852369"}
+2021-06-17 14:57:49 , NODE9 , {"payload":"Consulta 18","hops":16,"sender":9,"type":"consulta","recipient":8,"path":"12369"}
+2021-06-17 14:57:50 , NODE9 , {"payload":"Consulta 18","hops":10,"sender":9,"type":"consulta","recipient":8,"path":"12369852369"}
+2021-06-17 14:57:51 , NODE9 , {"payload":"Consulta 18","hops":4,"sender":9,"type":"consulta","recipient":8,"path":"12369852369874569"}
+2021-06-17 14:57:56 , NODE9 , {"payload":"Consulta 18","hops":16,"sender":9,"type":"consulta","recipient":6,"path":"14789"}
+2021-06-17 14:57:57 , NODE9 , {"payload":"Consulta 18","hops":10,"sender":9,"type":"consulta","recipient":6,"path":"14789654789"}
+2021-06-17 14:57:59 , NODE9 , {"payload":"Consulta 18","hops":4,"sender":9,"type":"consulta","recipient":6,"path":"14789654789632589"}
+2021-06-17 14:58:09 , NODE9 , Encerrando o programa
