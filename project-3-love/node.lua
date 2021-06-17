@@ -7,18 +7,10 @@ node.id = nil
 node.topic = nil
 node.subscriptions = nil
 node.neighborList = {}
-  -- The neighbor list can be actively created and maintained
-  -- by actively broadcasting a request, or passively, through listening
-  -- for other node broadcasts
-
-node.routes = {
-    Events = {},
-    Dist = {},
-    Dir = {}
-}
+node.routes = { Events = {}, Dist = {}, Dir = {} }
 
 -------------------------------------------------------------------------------
--- Getters and Setters
+-- Methods
 -------------------------------------------------------------------------------
 function node:setId(id)
     self.id = id
@@ -32,23 +24,22 @@ function node:setSubscriptions(subscriptions)
     self.subscriptions = subscriptions
 end
 
+function node:getId()
+    return self.id
+end
+
 function node:getSubscriptions()
     return self.subscriptions
 end
 
--------------------------------------------------------------------------------
--- Routing functions
--------------------------------------------------------------------------------
-function node.broadCastHelloPacket(self)
-    -- packet message with self.id
+function node:getNeighborList()
+    return self.neighborList
 end
 
-function node.witnessEvent(self)
-    -- When a node witnesses an event, it adds it to its event table, with
-    -- a distance of zero to the event.
-    -- It also probabilistically generates an agent.
-    -- The probability of generating an agent is an
-    -- algorithm parameter, and is explored in the experiment section.
+function node:createNeighborList()
+    for _, subscription in pairs(node.subscriptions) do
+       table.insert(node.neighborList, tonumber(string.sub(subscription, 8)))
+    end
 end
 
 return node
