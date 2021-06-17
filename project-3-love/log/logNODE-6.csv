@@ -1,10 +1,1 @@
-2021-06-17 14:57:40 , NODE6 , {"payload":"Consulta 18","hops":17,"sender":6,"type":"consulta","recipient":9,"path":"1236"}
-2021-06-17 14:57:41 , NODE6 , {"payload":"Consulta 18","hops":11,"sender":6,"type":"consulta","recipient":9,"path":"1236985236"}
-2021-06-17 14:57:42 , NODE6 , {"payload":"Consulta 18","hops":5,"sender":6,"type":"consulta","recipient":9,"path":"1236985236985236"}
-2021-06-17 14:57:48 , NODE6 , {"payload":"Consulta 18","hops":17,"sender":6,"type":"consulta","recipient":9,"path":"1236"}
-2021-06-17 14:57:49 , NODE6 , {"payload":"Consulta 18","hops":11,"sender":6,"type":"consulta","recipient":9,"path":"1236985236"}
-2021-06-17 14:57:51 , NODE6 , {"payload":"Consulta 18","hops":5,"sender":6,"type":"consulta","recipient":9,"path":"1236985236987456"}
-2021-06-17 14:57:56 , NODE6 , {"payload":"Consulta 18","hops":15,"sender":6,"type":"consulta","recipient":5,"path":"147896"}
-2021-06-17 14:57:58 , NODE6 , {"payload":"Consulta 18","hops":9,"sender":6,"type":"consulta","recipient":3,"path":"147896547896"}
-2021-06-17 14:57:59 , NODE6 , {"payload":"Consulta 18","hops":3,"sender":6,"type":"consulta","recipient":5,"path":"147896547896325896"}
-2021-06-17 14:58:03 , NODE6 , Encerrando o programa
+2021-06-17 16:50:52 , NODE6 , Encerrando o programa

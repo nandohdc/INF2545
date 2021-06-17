@@ -1,5 +1,1 @@
-2021-06-17 14:57:50 , NODE4 , {"payload":"Consulta 18","hops":7,"sender":4,"type":"consulta","recipient":5,"path":"12369852369874"}
-2021-06-17 14:57:51 , NODE4 , {"payload":"Consulta 18","hops":1,"sender":4,"type":"consulta","recipient":5,"path":"12369852369874569874"}
-2021-06-17 14:57:56 , NODE4 , {"payload":"Consulta 18","hops":19,"sender":4,"type":"consulta","recipient":7,"path":"14"}
-2021-06-17 14:57:57 , NODE4 , {"payload":"Consulta 18","hops":13,"sender":4,"type":"consulta","recipient":7,"path":"14789654"}
-2021-06-17 14:57:59 , NODE4 , {"payload":"Consulta 18","hops":1,"sender":4,"type":"consulta","recipient":7,"path":"14789654789632589654"}
+2021-06-17 16:50:47 , NODE4 , Encerrando o programa

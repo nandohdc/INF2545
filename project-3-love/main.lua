@@ -334,6 +334,7 @@ function love.load(arg)
 end
 
 function love.draw()
+    love.graphics.clear()
     local window_width, window_height = love.window.getMode()
     local button_height = 64
     local button_width = window_width * (1/4)
@@ -401,17 +402,15 @@ function love.draw()
         window_height - 10
     )
     local display_numbers_info = math.floor((window_height - 10) / font:getHeight("OI"))
-
+    local last_number_of_lines = 0
     if next(display_info) ~= nil then
-        for i = display_numbers_info, 1, -1 do
-            if display_info[i] ~= nil then
-                local scale = window_width / font:getWidth(display_info[i])
-                if scale > 1 then
-                    love.graphics.printf(display_info[i], tx, ty + (i)*40, window_width - 50, "left", nil, nil, nil, nil, nil, nil, nil)
-                else
-                    love.graphics.printf(display_info[i], tx, ty + ((i)*scale)*20, window_width - 50, "left", nil, nil, nil, nil, nil, nil, nil)
-                end
+        for i = #display_info, 1, -1 do
+            local widthd, wrappedtext = font:getWrap(display_info[i],window_width - 100)
+            for index, value in ipairs(wrappedtext) do
+                ty = ty + 15
+                love.graphics.printf(value, tx, ty, widthd, "left", nil, nil, nil, nil, nil, nil, nil)
             end
+            last_number_of_lines = #wrappedtext
         end
     end
 end

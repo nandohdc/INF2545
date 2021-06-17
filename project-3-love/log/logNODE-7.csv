@@ -1,6 +1,1 @@
-2021-06-17 14:57:50 , NODE7 , {"payload":"Consulta 18","hops":8,"sender":7,"type":"consulta","recipient":4,"path":"1236985236987"}
-2021-06-17 14:57:51 , NODE7 , {"payload":"Consulta 18","hops":2,"sender":7,"type":"consulta","recipient":4,"path":"1236985236987456987"}
-2021-06-17 14:57:56 , NODE7 , {"payload":"Consulta 18","hops":18,"sender":7,"type":"consulta","recipient":8,"path":"147"}
-2021-06-17 14:57:57 , NODE7 , {"payload":"Consulta 18","hops":12,"sender":7,"type":"consulta","recipient":8,"path":"147896547"}
-2021-06-17 14:57:59 , NODE7 , {"payload":"Consulta 18","hops":0,"sender":7,"type":"consulta","recipient":8,"path":"147896547896325896547"}
-2021-06-17 14:58:06 , NODE7 , Encerrando o programa
+2021-06-17 16:50:51 , NODE7 , Encerrando o programa
