@@ -1,0 +1,8 @@
+2021-06-17 20:38:03 , NODE4 , {"payload":"Evento 4","hops":20,"sender":4,"type":"evento","recipient":1}
+2021-06-17 20:38:03 , NODE4 , {"payload":"Evento 4","hops":20,"sender":4,"type":"evento","recipient":5}
+2021-06-17 20:38:03 , NODE4 , {"payload":"Evento 4","hops":20,"sender":4,"type":"evento","recipient":7}
+2021-06-17 20:38:04 , NODE4 , {"payload":"Evento 13","hops":20,"sender":4,"type":"evento","recipient":1}
+2021-06-17 20:38:04 , NODE4 , {"payload":"Evento 13","hops":20,"sender":4,"type":"evento","recipient":5}
+2021-06-17 20:38:04 , NODE4 , {"payload":"Evento 13","hops":20,"sender":4,"type":"evento","recipient":7}
+2021-06-17 20:38:56 , NODE4 , {"payload":"Consulta 10","hops":13,"sender":4,"type":"consulta","recipient":7,"path":"58963214"}
+2021-06-17 20:38:57 , NODE4 , {"payload":"Chegou ao destino!","hops":7,"sender":4,"type":"consulta","recipient":"1","path":"589632"}
