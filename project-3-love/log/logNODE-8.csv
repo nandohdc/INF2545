@@ -1,8 +1,0 @@
-2021-06-17 03:49:42 , NODE8 , {"payload":"Evento 16","recipient":7,"sender":8,"hops":12}
-2021-06-17 03:49:44 , NODE8 , {"payload":"Chegou ao destino!","recipient":8,"sender":8,"hops":0}
-2021-06-17 03:49:46 , NODE8 , {"payload":"Evento 6","recipient":9,"sender":8,"hops":19}
-2021-06-17 03:49:48 , NODE8 , {"payload":"Evento 4","recipient":7,"sender":8,"hops":20}
-2021-06-17 03:49:50 , NODE8 , {"payload":"Evento 2","recipient":7,"sender":8,"hops":19}
-2021-06-17 03:49:50 , NODE8 , {"payload":"Evento 2","recipient":7,"sender":8,"hops":15}
-2021-06-17 03:49:54 , NODE8 , {"payload":"Evento 12","recipient":9,"sender":8,"hops":18}
-2021-06-17 03:49:54 , NODE8 , {"payload":"Evento 12","recipient":7,"sender":8,"hops":14}

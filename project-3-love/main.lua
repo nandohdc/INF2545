@@ -14,6 +14,9 @@ local font = nil
 local display_info = {}
 local button_texts = {}
 local num_nodes = 0
+local path = {}
+
+local distances = {}
 
 local function new_button(text, ftn)
     return {text = text, ftn = ftn, now = false, last = false}
@@ -59,9 +62,10 @@ local function set_config(node_id, number_of_nodes)
     end
 end
 
-local function encode_message(new_sender, new_recipient, new_message, new_hops)
-    local message = {sender = new_sender, recipient =  new_recipient, payload = new_message, hops = new_hops}
+local function encode_message(new_type, new_sender, new_recipient, new_message, new_hops, new_path)
+    local message = {type = new_type, sender = new_sender, recipient =  new_recipient, payload = new_message, hops = new_hops, path = new_path}
     local message_encoded = json.encode(message)
+    print(message_encoded)
     return message_encoded
 end
 
@@ -78,41 +82,58 @@ end
 
 local function mqttcb(topic, message)
    local decoded_message = decode_message(message)
-    if tonumber(decoded_message.recipient) == tonumber(node.id) then
-        table.insert(display_info, message)
-        print(message)
-        local hops = tonumber(decoded_message.hops)
-        if hops > 0  then
-            local encoded_message = encode_message(node.id, node.id, "Chegou ao destino!", 0)
-            if decoded_message.payload == button_texts[1] then
-                print(encoded_message) -- print no terminal
-                logger.writeLog("NODE"..node.id, encoded_message) -- salva em arquivo
-                table.insert(display_info, encoded_message)
-            elseif decoded_message.payload == button_texts[2]  then
-                print(encoded_message) -- print no terminal
-                logger.writeLog("NODE"..node.id, encoded_message) -- salva em arquivos
-                table.insert(display_info, encoded_message)
-            else
-                local neighborList_cpy = node:getNeighborList()
- 
-                -- faz busca linear pra achar posicao do vizinho que mandou a msg
-                local sender_position = nil
-                for pos, v in pairs(neighborList_cpy) do 
-                    if v == tonumber(decoded_message.sender) then 
-                        sender_position = pos
-                        break
+
+    if decoded_message.type == "evento" then
+        if tonumber(decoded_message.sender) == tonumber(node.id) then
+            table.insert(distances, tonumber(node.id), {distance = 0, origin= node.id, event=decoded_message.payload})
+        end
+
+        if tonumber(decoded_message.recipient) == tonumber(node.id) then
+            table.insert(distances, tonumber(node.id), {distance = 1, origin= node.id, event=decoded_message.payload})
+        end
+    
+    elseif decoded_message.type == "consulta"  then
+
+        if tonumber(decoded_message.recipient) == tonumber(node.id) then
+            table.insert(display_info, message)
+            print(decoded_message.path)
+            local hops = tonumber(decoded_message.hops)
+            if hops > 0  then
+                print(decoded_message.payload, button_texts[4])
+                if decoded_message.payload == button_texts[3] then
+                    local encoded_message = encode_message("consulta", node.id, node.id, "Chegou ao destino!", 0, decoded_message.path..tostring(node.id))
+                    print(encoded_message) -- print no terminal
+                    logger.writeLog("NODE"..node.id, encoded_message) -- salva em arquivo
+                    table.insert(display_info, encoded_message)
+                elseif decoded_message.payload == button_texts[4]  then
+                    local encoded_message = encode_message("consulta", node.id, node.id, "Chegou ao destino!", 0, decoded_message.path..tostring(node.id))
+                    print(encoded_message) -- print no terminal
+                    logger.writeLog("NODE"..node.id, encoded_message) -- salva em arquivos
+                    table.insert(display_info, encoded_message)
+                else
+                    local neighborList_cpy = node:getNeighborList()
+    
+                    -- faz busca linear pra achar posicao do vizinho que mandou a msg
+                    local sender_position = nil
+                    for pos, v in pairs(neighborList_cpy) do 
+                        if v == tonumber(decoded_message.sender) then 
+                            sender_position = pos
+                            break
+                        end
                     end
+
+                    table.remove(neighborList_cpy, sender_position)
+                    local neighbor = getRandomItemFromList(neighborList_cpy)
+
+                    encoded_message = encode_message("consulta", node.id, neighborList_cpy[neighbor], decoded_message.payload, hops - 1, decoded_message.path..tostring(node.id))
+                    mqtt_client:publish(node.topic, encoded_message)
+                    logger.writeLog("NODE"..node.id, encoded_message) -- salva em arquivo
+                    table.insert(display_info, encoded_message)
                 end
-
-                table.remove(neighborList_cpy, sender_position)
-                local neighbor = getRandomItemFromList(neighborList_cpy)
-
-                encoded_message = encode_message(node.id, neighborList_cpy[neighbor], decoded_message.payload, hops - 1)
-                mqtt_client:publish(node.topic, encoded_message)
-                logger.writeLog("NODE"..node.id, encoded_message) -- salva em arquivo
-                table.insert(display_info, encoded_message)
             end
         end
+    else
+      --erro: tipo invalido
     end
 end
 
@@ -121,6 +142,11 @@ function love.load(arg)
 
     if isOk then
         dofile("config/" .. config_file)
+
+        for i = 1, config.numberOfNodes, 1 do
+            local distance = {}
+            table.insert(distances, i, distance)
+        end
 
         -- Config do nó
         node = node_obj
@@ -157,11 +183,11 @@ function love.load(arg)
             j = j - 2
         end
 
-        -- for index, value in ipairs(messages) do
-        --     for i, v in ipairs(value) do
-        --         print(i, v)
-        --     end
-        -- end
+        for index, value in ipairs(messages) do
+            for i, v in ipairs(value) do
+                print(index, v)
+            end
+        end
 
 
         node_id = tonumber(node_id)
@@ -177,7 +203,7 @@ function love.load(arg)
                 local neighborhood = node:getNeighborList()
                 local neighbor = getRandomItemFromList(neighborhood)
 
-                local encoded_message = encode_message(node_id, neighborhood[neighbor], message, 20)
+                local encoded_message = encode_message("evento", node_id, neighborhood[neighbor], message, 20)
                 print(encoded_message) -- print no terminal
                 logger.writeLog("NODE"..node_id, encoded_message) -- salva em arquivo
                 mqtt_client:publish(node.topic, encoded_message) -- envia msg via mqtt
@@ -192,7 +218,7 @@ function love.load(arg)
                 local neighborhood = node:getNeighborList()
                 local neighbor = getRandomItemFromList(neighborhood)
 
-                local encoded_message = encode_message(node_id, neighborhood[neighbor], message, 20)
+                local encoded_message = encode_message("evento", node_id, neighborhood[neighbor], message, 20)
                 print(encoded_message) -- print no terminal
                 logger.writeLog("NODE"..node_id, encoded_message) -- salva em arquivo
                 mqtt_client:publish(node.topic, encoded_message) -- envia msg via mqtt
@@ -203,18 +229,30 @@ function love.load(arg)
         table.insert(buttons, new_button(
             button_texts[3],
             function ()
-                local message = button_texts[3]
-                print(message)
-                logger.writeLog("NODE"..node_id, message)
+                local message = "Consulta "..messages[node_id][1]
+                local neighborhood = node:getNeighborList()
+                local neighbor = getRandomItemFromList(neighborhood)
+                
+                local encoded_message = encode_message("consulta", node_id, neighborhood[neighbor], message, 20, tostring(node_id))
+                print(encoded_message) -- print no terminal
+                logger.writeLog("NODE"..node_id, encoded_message) -- salva em arquivo
+                mqtt_client:publish(node.topic, encoded_message) -- envia msg via mqtt
+                table.insert(display_info, encoded_message)
             end
         ))
 
         table.insert(buttons, new_button(
             button_texts[4],
             function ()
-                local message = button_texts[4]
-                print(message)
-                logger.writeLog("NODE"..node_id, message)
+                local message =  "Consulta "..messages[node_id][2]
+                local neighborhood = node:getNeighborList()
+                local neighbor = getRandomItemFromList(neighborhood)
+                
+                local encoded_message = encode_message("consulta", node_id, neighborhood[neighbor], message, 20, tostring(node_id))
+                print(encoded_message) -- print no terminal
+                logger.writeLog("NODE"..node_id, encoded_message) -- salva em arquivo
+                mqtt_client:publish(node.topic, encoded_message) -- envia msg via mqtt
+                table.insert(display_info, encoded_message)
             end
         ))
 
@@ -304,9 +342,9 @@ function love.draw()
             if display_info[i] ~= nil then
                 local scale = window_width / font:getWidth(display_info[i]) 
                 if scale > 1 then
-                    love.graphics.printf(display_info[i], tx, ty + (i)*40, window_width - 10, "left", nil, nil, nil, nil, nil, nil, nil)
+                    love.graphics.printf(display_info[i], tx, ty + (i)*40, window_width - 50, "left", nil, nil, nil, nil, nil, nil, nil)
                 else
-                    love.graphics.printf(display_info[i], tx, ty + ((i)*scale)*20, window_width - 10, "left", nil, nil, nil, nil, nil, nil, nil)
+                    love.graphics.printf(display_info[i], tx, ty + ((i)*scale)*20, window_width - 50, "left", nil, nil, nil, nil, nil, nil, nil)
                 end
             end
         end
