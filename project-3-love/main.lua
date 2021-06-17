@@ -12,16 +12,11 @@ local buttons = {}
 local mqtt_client = nil
 local font = nil
 local display_info = {}
-local button_texts = {}
+local texts = {}
 local num_nodes = 0
 
 local function new_button(text, ftn)
-    return {
-        text = text,
-        ftn = ftn,
-        now = false,
-        last = false
-    }
+    return {text = text, ftn = ftn, now = false, last = false}
 end
 
 local function isConfigOk(arguments)
@@ -31,6 +26,12 @@ local function isConfigOk(arguments)
             return false
         else
             if type(arguments[1]) ~= "string" then
+                return false
+            end
+
+            dofile("config/" .. arguments[1])
+
+            if config.numberOfNodes <= 0 then 
                 return false
             end
 
@@ -69,6 +70,12 @@ local function decode_message(new_encoded_message)
     return decoded_message
 end
 
+local function getRandomItemFromList(list)
+    math.randomseed(os.time())
+    math.random(); math.random(); math.random()
+    return math.random(1, #list)
+end
+
 local function mqttcb(topic, message)
    local decoded_message = decode_message(message)
     if tonumber(decoded_message.recipient) == tonumber(node.id) then
@@ -76,25 +83,31 @@ local function mqttcb(topic, message)
         print(message)
         local hops = tonumber(decoded_message.hops)
         if hops > 0  then
-            local encoded_message = encode_message(node.id, node.id, "Chegou ao Destino!", 0)
-            if decoded_message.payload == button_texts[1] then
-                -- mqtt_client:publish(node.topic, encoded_message) -- envia msg via mqtt
-                logger.writeLog("NODE"..node.id, encoded_message) -- salva em arquivo
+            local encoded_message = encode_message(node.id, decoded_message.sender, decoded_message.payload, 0)
+            if decoded_message.payload == texts[1] then
+                mqtt_client:publish(node.topic, encoded_message)
                 table.insert(display_info, encoded_message)
-            elseif decoded_message.payload == button_texts[2]  then
-                encoded_message = encode_message(node.id, node.id, "Chegou ao Destino!", 0)
-                -- mqtt_client:publish(node.topic, encoded_message) -- envia msg via mqtt
-                logger.writeLog("NODE"..node.id, encoded_message) -- salva em arquivo
+            elseif decoded_message.payload == texts[2]  then
+                encoded_message = encode_message(node.id, decoded_message.sender, decoded_message.payload, 0)
+                mqtt_client:publish(node.topic, encoded_message)
                 table.insert(display_info, encoded_message)
             else
-                local neighbor = tonumber(string.sub(node:getSubscriptions()[math.random(#node:getSubscriptions())], 8))
-
-                while neighbor == tonumber(decoded_message.sender) do
-                    neighbor = tonumber(string.sub(node:getSubscriptions()[math.random(#node:getSubscriptions())], 8))
+                local neighborList_cpy = node:getNeighborList()
+ 
+                -- faz busca linear pra achar posicao do vizinho que mandou a msg
+                local sender_position = nil
+                for pos, v in pairs(neighborList_cpy) do 
+                    if v == tonumber(decoded_message.sender) then 
+                        sender_position = pos
+                        break
+                    end
                 end
-                encoded_message = encode_message(node.id, neighbor, decoded_message.payload, hops - 1)
-                mqtt_client:publish(node.topic, encoded_message) -- envia msg via mqtt
-                logger.writeLog("NODE"..node.id, encoded_message) -- salva em arquivo
+
+                table.remove(neighborList_cpy, sender_position)               
+                local neighbor = getRandomItemFromList(neighborList_cpy)
+
+                encoded_message = encode_message(node.id, neighborList_cpy[neighbor], decoded_message.payload, hops - 1)
+                mqtt_client:publish(node.topic, encoded_message)
                 table.insert(display_info, encoded_message)
             end
         end
@@ -107,51 +120,46 @@ function love.load(arg)
     if isOk then
         dofile("config/" .. config_file)
 
+        -- Config do nó
         node = node_obj
         node:setId(config.id)
         node:setTopic(config.topic)
         node:setSubscriptions(config.subscribedTo)
-
-        num_nodes = config.numberOfNodes
+        node:createNeighborList()
         
-        if num_nodes == 0 then
-            -- fechar o programa, config invalida
-        end
-
+        -- Config do logger
         local node_id = tostring(config.id)
         logger:setFilename(node_id)
-        
+
+        -- Config do mqtt
         -- Depois de verificar as configuracoes e todas estarem corretas, vem o mqtt
         mqtt_client = mqtt.client.create(MQTT_IP, 1883, mqttcb)
         mqtt_client:connect(node_id)
-
+        
         -- Se inscreve nos tópicos de interesse
-        for _, subscription in ipairs(node.subscriptions) do
+        for _, subscription in pairs(node.subscriptions) do
             mqtt_client:subscribe({subscription})
         end
-
+        
+        -- Config Interface
+        local num_nodes = config.numberOfNodes
         set_config(node.id, num_nodes) --funcao de configuracao das janelas
 
         font = love.graphics.newFont(24)
+
+        table.insert(texts, "Evento "..node_id)
+        table.insert(texts, "Evento "..(node_id+num_nodes))
+        table.insert(texts, "Consulta "..(node_id))
+        table.insert(texts, "Consulta "..(node_id+num_nodes))
         
-        local messages = {}
-        local j = 2*num_nodes
-
-        for i = 1, num_nodes, 1 do
-            messages[i] = {j, j - 1}
-            j = j - 2
-        end
-
-        table.insert(button_texts, "Evento "..node_id)
-        table.insert(button_texts, "Evento "..(node_id+num_nodes))
-        table.insert(button_texts, "Consulta "..(node_id))
-        table.insert(button_texts, "Consulta "..(node_id+num_nodes))
         table.insert(buttons, new_button(
-            button_texts[1],
+            texts[1],
             function ()
-                local message = messages[node_id][1]
-                local neighbor = string.sub(node:getSubscriptions()[math.random(#node:getSubscriptions())], 8)
-                local encoded_message = encode_message(node_id, neighbor, message, 20)
+                local message = "Evento 18"
+                local neighborhood = node:getNeighborList()
+                local neighbor = getRandomItemFromList(neighborhood)
+
+                local encoded_message = encode_message(node_id, neighborhood[neighbor], message, 20)
                 print(encoded_message) -- print no terminal
                 logger.writeLog("NODE"..node_id, encoded_message) -- salva em arquivo
                 mqtt_client:publish(node.topic, encoded_message) -- envia msg via mqtt
@@ -160,9 +168,9 @@ function love.load(arg)
         ))
 
         table.insert(buttons, new_button(
-            button_texts[2],
+            texts[2],
             function ()
-                local message = messages[node_id][2]
+                local message = texts[2]
                 local encoded_message = encode_message(node_id, num_nodes, message, 10)
                 print(encoded_message) -- print no terminal
                 logger.writeLog("NODE"..node_id, encoded_message) -- salva em arquivo
@@ -172,18 +180,18 @@ function love.load(arg)
         ))
 
         table.insert(buttons, new_button(
-            button_texts[3],
+            texts[3],
             function ()
-                local message = button_texts[3]
+                local message = texts[3]
                 print(message)
                 logger.writeLog("NODE"..node_id, message)
             end
         ))
 
         table.insert(buttons, new_button(
-            button_texts[4],
+            texts[4],
             function ()
-                local message = button_texts[4]
+                local message = texts[4]
                 print(message)
                 logger.writeLog("NODE"..node_id, message)
             end
@@ -226,7 +234,7 @@ function love.draw()
             color = {0.8, 0.8, 0.9, 1.0}
         end
         
-        button.now = love.mouse.isDown(1)
+        button.now =  love.mouse.isDown(1)
 
         if button.now and not button.last and hover_position then
             button.ftn()
@@ -275,9 +283,9 @@ function love.draw()
             if display_info[i] ~= nil then
                 local scale = window_width / font:getWidth(display_info[i]) 
                 if scale > 1 then
-                    love.graphics.printf(display_info[i], tx, ty + (i)*160 + 20, window_width, "left", nil, nil, nil, nil, nil, nil, nil)
+                    love.graphics.printf(display_info[i], tx, ty + (i)*40, window_width - 10, "left", nil, nil, nil, nil, nil, nil, nil)
                 else
-                    love.graphics.printf(display_info[i], tx, ty + ((i)*scale)*160 + 20, window_width, "left", nil, nil, nil, nil, nil, nil, nil)
+                    love.graphics.printf(display_info[i], tx, ty + ((i)*scale)*20, window_width - 10, "left", nil, nil, nil, nil, nil, nil, nil)
                 end
             end
         end
