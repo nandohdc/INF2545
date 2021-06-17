@@ -97,46 +97,52 @@ local function mqttcb(topic, message)
             table.insert(display_info, message)
             local hops = tonumber(decoded_message.hops)
             if hops > 0  then
-                print(decoded_message.payload)
-                 if decoded_message.payload == "Chegou ao destino!" then
-                    local encoded_message = encode_message("consulta", node.id, string.sub(decoded_message.path, #decoded_message.path), "Chegou ao destino!", hops - 1, string.sub(decoded_message.path, #decoded_message.path - 1))
-                    print(encoded_message) -- print no terminal
-                    mqtt_client:publish(node.topic, encoded_message)
-                    logger.writeLog("NODE"..node.id, encoded_message) -- salva em arquivos
-                    table.insert(display_info, encoded_message)
-                 end
-
-                if decoded_message.payload == button_texts[3] then
-                    local encoded_message = encode_message("consulta", node.id, string.sub(decoded_message.path, #decoded_message.path), "Chegou ao destino!", hops - 1, string.sub(decoded_message.path, #decoded_message.path - 1))
-                    print(encoded_message) -- print no terminal
-                    mqtt_client:publish(node.topic, encoded_message)
-                    logger.writeLog("NODE"..node.id, encoded_message) -- salva em arquivo
-                    table.insert(display_info, encoded_message)
-                elseif decoded_message.payload == button_texts[4]  then
-                    local encoded_message = encode_message("consulta", node.id, string.sub(decoded_message.path, #decoded_message.path), "Chegou ao destino!", hops - 1, string.sub(decoded_message.path, #decoded_message.path - 1))
-                    print(encoded_message) -- print no terminal
-                    mqtt_client:publish(node.topic, encoded_message)
-                    logger.writeLog("NODE"..node.id, encoded_message) -- salva em arquivos
-                    table.insert(display_info, encoded_message)
-                else
-                    local neighborList_cpy = node:getNeighborList()
-    
-                    -- faz busca linear pra achar posicao do vizinho que mandou a msg
-                    local sender_position = nil
-                    for pos, v in pairs(neighborList_cpy) do 
-                        if v == tonumber(decoded_message.sender) then 
-                            sender_position = pos
-                            break
-                        end
+                if decoded_message.path == '' or  decoded_message.path == nil then
+                    if decoded_message.payload == "Chegou ao destino!" then
+                        local encoded_message = encode_message("consulta", node.id, node.id, "Volta Completa!", 0, decoded_message.path)
+                        logger.writeLog("NODE"..node.id, encoded_message) -- salva em arquivos
+                        table.insert(display_info, encoded_message) 
                     end
+                else
+                    if decoded_message.payload == "Chegou ao destino!" then
+                        local encoded_message = encode_message("consulta", node.id, string.sub(decoded_message.path, #decoded_message.path), "Chegou ao destino!", hops - 1, string.sub(decoded_message.path, 0, #decoded_message.path - 1))
+                        print(encoded_message) -- print no terminal
+                        mqtt_client:publish(node.topic, encoded_message)
+                        logger.writeLog("NODE"..node.id, encoded_message) -- salva em arquivos
+                        table.insert(display_info, encoded_message) 
 
-                    table.remove(neighborList_cpy, sender_position)
-                    local neighbor = getRandomItemFromList(neighborList_cpy)
+                    elseif decoded_message.payload == button_texts[3] then
+                        local encoded_message = encode_message("consulta", node.id, string.sub(decoded_message.path, #decoded_message.path), "Chegou ao destino!", hops - 1, string.sub(decoded_message.path, 0, #decoded_message.path - 1))
+                        print(encoded_message) -- print no terminal
+                        mqtt_client:publish(node.topic, encoded_message)
+                        logger.writeLog("NODE"..node.id, encoded_message) -- salva em arquivo
+                        table.insert(display_info, encoded_message)
+                    elseif decoded_message.payload == button_texts[4]  then
+                        local encoded_message = encode_message("consulta", node.id, string.sub(decoded_message.path, #decoded_message.path), "Chegou ao destino!", hops - 1, string.sub(decoded_message.path, 0, #decoded_message.path - 1))
+                        print(encoded_message) -- print no terminal
+                        mqtt_client:publish(node.topic, encoded_message)
+                        logger.writeLog("NODE"..node.id, encoded_message) -- salva em arquivos
+                        table.insert(display_info, encoded_message)
+                    else
+                        local neighborList_cpy = node:getNeighborList()
+        
+                        -- faz busca linear pra achar posicao do vizinho que mandou a msg
+                        local sender_position = nil
+                        for pos, v in pairs(neighborList_cpy) do 
+                            if v == tonumber(decoded_message.sender) then 
+                                sender_position = pos
+                                break
+                            end
+                        end
 
-                    encoded_message = encode_message("consulta", node.id, neighborList_cpy[neighbor], decoded_message.payload, hops - 1, decoded_message.path..tostring(node.id))
-                    mqtt_client:publish(node.topic, encoded_message)
-                    logger.writeLog("NODE"..node.id, encoded_message) -- salva em arquivo
-                    table.insert(display_info, encoded_message)
+                        table.remove(neighborList_cpy, sender_position)
+                        local neighbor = getRandomItemFromList(neighborList_cpy)
+
+                        local encoded_message = encode_message("consulta", node.id, neighborList_cpy[neighbor], decoded_message.payload, hops - 1, decoded_message.path..tostring(node.id))
+                        mqtt_client:publish(node.topic, encoded_message)
+                        logger.writeLog("NODE"..node.id, encoded_message) -- salva em arquivo
+                        table.insert(display_info, encoded_message)
+                    end
                 end
             end
         end
@@ -191,12 +197,11 @@ function love.load(arg)
             j = j - 2
         end
 
-        for index, value in ipairs(messages) do
-            for i, v in ipairs(value) do
-                print(index, v)
-            end
-        end
-
+        -- for index, value in ipairs(messages) do
+        --     for i, v in ipairs(value) do
+        --         print(index, v)
+        --     end
+        -- end
 
         node_id = tonumber(node_id)
         table.insert(button_texts, "Evento "..node_id)
