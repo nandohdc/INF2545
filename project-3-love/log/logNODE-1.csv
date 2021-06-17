@@ -1,2 +1,4 @@
-2021-06-17 03:40:27 , NODE1 , {"payload":"Evento 18","recipient":4,"sender":1,"hops":20}
-2021-06-17 03:40:50 , NODE1 , {"payload":"Evento 18","recipient":4,"sender":1,"hops":20}
+2021-06-17 03:49:36 , NODE1 , {"payload":"Evento 18","recipient":2,"sender":1,"hops":20}
+2021-06-17 03:49:41 , NODE1 , {"payload":"Evento 16","recipient":2,"sender":1,"hops":17}
+2021-06-17 03:49:51 , NODE1 , {"payload":"Evento 2","recipient":2,"sender":1,"hops":12}
+2021-06-17 03:49:55 , NODE1 , {"payload":"Evento 12","recipient":2,"sender":1,"hops":11}

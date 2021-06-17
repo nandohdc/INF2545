@@ -33,7 +33,11 @@ function node:getSubscriptions()
 end
 
 function node:getNeighborList()
-    return self.neighborList
+    local t2 = {}
+    for pos, v in pairs(self.neighborList) do 
+        t2[pos] = v
+    end
+    return t2
 end
 
 function node:createNeighborList()

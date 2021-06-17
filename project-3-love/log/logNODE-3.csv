@@ -1,1 +1,3 @@
-2021-06-17 03:40:37 , NODE3 , {"payload":"Evento 14","recipient":6,"sender":3,"hops":20}
+2021-06-17 03:49:36 , NODE3 , {"payload":"Evento 18","recipient":6,"sender":3,"hops":18}
+2021-06-17 03:49:41 , NODE3 , {"payload":"Evento 16","recipient":6,"sender":3,"hops":15}
+2021-06-17 03:49:55 , NODE3 , {"payload":"Chegou ao destino!","recipient":3,"sender":3,"hops":0}
