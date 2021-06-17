@@ -12,7 +12,7 @@ local buttons = {}
 local mqtt_client = nil
 local font = nil
 local display_info = {}
-local texts = {}
+local button_texts = {}
 local num_nodes = 0
 
 local function new_button(text, ftn)
@@ -76,13 +76,15 @@ local function mqttcb(topic, message)
         print(message)
         local hops = tonumber(decoded_message.hops)
         if hops > 0  then
-            local encoded_message = encode_message(node.id, decoded_message.sender, decoded_message.payload, 0)
-            if decoded_message.payload == texts[1] then
-                mqtt_client:publish(node.topic, encoded_message) -- envia msg via mqtt
+            local encoded_message = encode_message(node.id, node.id, "Chegou ao Destino!", 0)
+            if decoded_message.payload == button_texts[1] then
+                -- mqtt_client:publish(node.topic, encoded_message) -- envia msg via mqtt
+                logger.writeLog("NODE"..node.id, encoded_message) -- salva em arquivo
                 table.insert(display_info, encoded_message)
-            elseif decoded_message.payload == texts[2]  then
-                encoded_message = encode_message(node.id, decoded_message.sender, decoded_message.payload, 0)
-                mqtt_client:publish(node.topic, encoded_message) -- envia msg via mqtt
+            elseif decoded_message.payload == button_texts[2]  then
+                encoded_message = encode_message(node.id, node.id, "Chegou ao Destino!", 0)
+                -- mqtt_client:publish(node.topic, encoded_message) -- envia msg via mqtt
+                logger.writeLog("NODE"..node.id, encoded_message) -- salva em arquivo
                 table.insert(display_info, encoded_message)
             else
                 local neighbor = tonumber(string.sub(node:getSubscriptions()[math.random(#node:getSubscriptions())], 8))
@@ -92,6 +94,7 @@ local function mqttcb(topic, message)
                 end
                 encoded_message = encode_message(node.id, neighbor, decoded_message.payload, hops - 1)
                 mqtt_client:publish(node.topic, encoded_message) -- envia msg via mqtt
+                logger.writeLog("NODE"..node.id, encoded_message) -- salva em arquivo
                 table.insert(display_info, encoded_message)
             end
         end
@@ -109,7 +112,7 @@ function love.load(arg)
         node:setTopic(config.topic)
         node:setSubscriptions(config.subscribedTo)
 
-        local num_nodes = config.numberOfNodes
+        num_nodes = config.numberOfNodes
         
         if num_nodes == 0 then
             -- fechar o programa, config invalida
@@ -130,15 +133,23 @@ function love.load(arg)
         set_config(node.id, num_nodes) --funcao de configuracao das janelas
 
         font = love.graphics.newFont(24)
+        
+        local messages = {}
+        local j = 2*num_nodes
 
-        table.insert(texts, "Evento "..node_id)
-        table.insert(texts, "Evento "..(node_id+num_nodes))
-        table.insert(texts, "Consulta "..(node_id))
-        table.insert(texts, "Consulta "..(node_id+num_nodes))
+        for i = 1, num_nodes, 1 do
+            messages[i] = {j, j - 1}
+            j = j - 2
+        end
+
+        table.insert(button_texts, "Evento "..node_id)
+        table.insert(button_texts, "Evento "..(node_id+num_nodes))
+        table.insert(button_texts, "Consulta "..(node_id))
+        table.insert(button_texts, "Consulta "..(node_id+num_nodes))
         table.insert(buttons, new_button(
-            texts[1],
+            button_texts[1],
             function ()
-                local message = "Evento 18"
+                local message = messages[node_id][1]
                 local neighbor = string.sub(node:getSubscriptions()[math.random(#node:getSubscriptions())], 8)
                 local encoded_message = encode_message(node_id, neighbor, message, 20)
                 print(encoded_message) -- print no terminal
@@ -149,9 +160,9 @@ function love.load(arg)
         ))
 
         table.insert(buttons, new_button(
-            texts[2],
+            button_texts[2],
             function ()
-                local message = texts[2]
+                local message = messages[node_id][2]
                 local encoded_message = encode_message(node_id, num_nodes, message, 10)
                 print(encoded_message) -- print no terminal
                 logger.writeLog("NODE"..node_id, encoded_message) -- salva em arquivo
@@ -161,18 +172,18 @@ function love.load(arg)
         ))
 
         table.insert(buttons, new_button(
-            texts[3],
+            button_texts[3],
             function ()
-                local message = texts[3]
+                local message = button_texts[3]
                 print(message)
                 logger.writeLog("NODE"..node_id, message)
             end
         ))
 
         table.insert(buttons, new_button(
-            texts[4],
+            button_texts[4],
             function ()
-                local message = texts[4]
+                local message = button_texts[4]
                 print(message)
                 logger.writeLog("NODE"..node_id, message)
             end
@@ -215,7 +226,7 @@ function love.draw()
             color = {0.8, 0.8, 0.9, 1.0}
         end
         
-        button.now =  love.mouse.isDown(1)
+        button.now = love.mouse.isDown(1)
 
         if button.now and not button.last and hover_position then
             button.ftn()
@@ -264,9 +275,9 @@ function love.draw()
             if display_info[i] ~= nil then
                 local scale = window_width / font:getWidth(display_info[i]) 
                 if scale > 1 then
-                    love.graphics.printf(display_info[i], tx, ty + (i)*40, window_width - 10, "left", nil, nil, nil, nil, nil, nil, nil)
+                    love.graphics.printf(display_info[i], tx, ty + (i)*160 + 20, window_width, "left", nil, nil, nil, nil, nil, nil, nil)
                 else
-                    love.graphics.printf(display_info[i], tx, ty + ((i)*scale)*20, window_width - 10, "left", nil, nil, nil, nil, nil, nil, nil)
+                    love.graphics.printf(display_info[i], tx, ty + ((i)*scale)*160 + 20, window_width, "left", nil, nil, nil, nil, nil, nil, nil)
                 end
             end
         end
