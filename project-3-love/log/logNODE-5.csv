@@ -1,0 +1,4 @@
+2021-06-17 13:45:12 , NODE5 , {"payload":"Consulta 16","hops":19,"sender":5,"type":"consulta","recipient":4,"path":"25"}
+2021-06-17 13:45:14 , NODE5 , {"payload":"Consulta 16","hops":11,"sender":5,"type":"consulta","recipient":6,"path":"2541236985"}
+2021-06-17 13:45:15 , NODE5 , {"payload":"Chegou ao destino!","hops":3,"sender":5,"type":"consulta","recipient":"8","path":"25412369"}
+2021-06-17 13:45:35 , NODE5 , Encerrando o programa

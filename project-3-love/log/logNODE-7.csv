@@ -1,0 +1,6 @@
+2021-06-17 13:45:14 , NODE7 , {"payload":"Chegou ao destino!","hops":7,"sender":7,"type":"consulta","recipient":"8","path":"254123698569"}
+2021-06-17 13:45:19 , NODE7 , {"payload":"Consulta 12","hops":19,"sender":7,"type":"consulta","recipient":8,"path":"47"}
+2021-06-17 13:45:21 , NODE7 , {"payload":"Chegou ao destino!","hops":11,"sender":7,"type":"consulta","recipient":"4","path":""}
+2021-06-17 13:45:24 , NODE7 , {"payload":"Consulta 2","hops":18,"sender":7,"type":"consulta","recipient":4,"path":"987"}
+2021-06-17 13:45:25 , NODE7 , {"payload":"Chegou ao destino!","hops":12,"sender":7,"type":"consulta","recipient":"8","path":"9"}
+2021-06-17 13:45:29 , NODE7 , Encerrando o programa
