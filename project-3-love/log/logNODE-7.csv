@@ -1,0 +1,2 @@
+2021-06-17 03:40:35 , NODE7 , {"payload":"Chegou ao destino!","recipient":7,"sender":7,"hops":0}
+2021-06-17 03:40:41 , NODE7 , {"payload":"Evento 6","recipient":8,"sender":7,"hops":20}

@@ -1,1 +1,1 @@
-config = {id =7, topic = 'channel7',subscribedTo = {'channel3','channel11','channel6','channel8'},numberOfNodes = 16}
+config = {id =7, topic = 'channel7',subscribedTo = {'channel4','channel8'},numberOfNodes = 9}

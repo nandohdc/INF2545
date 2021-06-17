@@ -12,7 +12,7 @@ local buttons = {}
 local mqtt_client = nil
 local font = nil
 local display_info = {}
-local texts = {}
+local button_texts = {}
 local num_nodes = 0
 
 local function new_button(text, ftn)
@@ -83,13 +83,14 @@ local function mqttcb(topic, message)
         print(message)
         local hops = tonumber(decoded_message.hops)
         if hops > 0  then
-            local encoded_message = encode_message(node.id, decoded_message.sender, decoded_message.payload, 0)
-            if decoded_message.payload == texts[1] then
-                mqtt_client:publish(node.topic, encoded_message)
+            local encoded_message = encode_message(node.id, node.id, "Chegou ao destino!", 0)
+            if decoded_message.payload == button_texts[1] then
+                print(encoded_message) -- print no terminal
+                logger.writeLog("NODE"..node.id, encoded_message) -- salva em arquivo
                 table.insert(display_info, encoded_message)
-            elseif decoded_message.payload == texts[2]  then
-                encoded_message = encode_message(node.id, decoded_message.sender, decoded_message.payload, 0)
-                mqtt_client:publish(node.topic, encoded_message)
+            elseif decoded_message.payload == button_texts[2]  then
+                print(encoded_message) -- print no terminal
+                logger.writeLog("NODE"..node.id, encoded_message) -- salva em arquivos
                 table.insert(display_info, encoded_message)
             else
                 local neighborList_cpy = node:getNeighborList()
@@ -103,11 +104,12 @@ local function mqttcb(topic, message)
                     end
                 end
 
-                table.remove(neighborList_cpy, sender_position)               
+                table.remove(neighborList_cpy, sender_position)
                 local neighbor = getRandomItemFromList(neighborList_cpy)
 
                 encoded_message = encode_message(node.id, neighborList_cpy[neighbor], decoded_message.payload, hops - 1)
                 mqtt_client:publish(node.topic, encoded_message)
+                logger.writeLog("NODE"..node.id, encoded_message) -- salva em arquivo
                 table.insert(display_info, encoded_message)
             end
         end
@@ -142,20 +144,36 @@ function love.load(arg)
         end
         
         -- Config Interface
-        local num_nodes = config.numberOfNodes
+        num_nodes = config.numberOfNodes
         set_config(node.id, num_nodes) --funcao de configuracao das janelas
 
         font = love.graphics.newFont(24)
 
-        table.insert(texts, "Evento "..node_id)
-        table.insert(texts, "Evento "..(node_id+num_nodes))
-        table.insert(texts, "Consulta "..(node_id))
-        table.insert(texts, "Consulta "..(node_id+num_nodes))
+        local messages = {}
+        local j = 2*num_nodes
+
+        for i = 1, num_nodes, 1 do
+            messages[i] = {j, j - 1}
+            j = j - 2
+        end
+
+        -- for index, value in ipairs(messages) do
+        --     for i, v in ipairs(value) do
+        --         print(i, v)
+        --     end
+        -- end
+
+
+        node_id = tonumber(node_id)
+        table.insert(button_texts, "Evento "..node_id)
+        table.insert(button_texts, "Evento "..(node_id+num_nodes))
+        table.insert(button_texts, "Consulta "..(node_id))
+        table.insert(button_texts, "Consulta "..(node_id+num_nodes))
         
         table.insert(buttons, new_button(
-            texts[1],
+            button_texts[1],
             function ()
-                local message = "Evento 18"
+                local message = "Evento "..messages[node_id][1]
                 local neighborhood = node:getNeighborList()
                 local neighbor = getRandomItemFromList(neighborhood)
 
@@ -168,10 +186,13 @@ function love.load(arg)
         ))
 
         table.insert(buttons, new_button(
-            texts[2],
+            button_texts[2],
             function ()
-                local message = texts[2]
-                local encoded_message = encode_message(node_id, num_nodes, message, 10)
+                local message = "Evento "..messages[node_id][2]
+                local neighborhood = node:getNeighborList()
+                local neighbor = getRandomItemFromList(neighborhood)
+
+                local encoded_message = encode_message(node_id, neighborhood[neighbor], message, 20)
                 print(encoded_message) -- print no terminal
                 logger.writeLog("NODE"..node_id, encoded_message) -- salva em arquivo
                 mqtt_client:publish(node.topic, encoded_message) -- envia msg via mqtt
@@ -180,18 +201,18 @@ function love.load(arg)
         ))
 
         table.insert(buttons, new_button(
-            texts[3],
+            button_texts[3],
             function ()
-                local message = texts[3]
+                local message = button_texts[3]
                 print(message)
                 logger.writeLog("NODE"..node_id, message)
             end
         ))
 
         table.insert(buttons, new_button(
-            texts[4],
+            button_texts[4],
             function ()
-                local message = texts[4]
+                local message = button_texts[4]
                 print(message)
                 logger.writeLog("NODE"..node_id, message)
             end
