@@ -17,9 +17,21 @@ local button_texts = {}
 local node = {}
 local mqtt_client = nil
 local num_nodes = 0
-local distances = {}
-local path = {}
+local events = {}
 local MAX_HOPS = 20
+
+local function dumpTable(o)
+    if type(o) == 'table' then
+        local s = '{ '
+        for k,v in pairs(o) do
+            if type(k) ~= 'number' then k = '"'..k..'"' end
+            s = s .. '['..k..'] = ' .. dumpTable(v) .. ','
+        end
+        return s .. '} '
+    else
+        return tostring(o)
+    end
+end
 
 local function new_button(text, ftn)
     return {text = text, ftn = ftn, now = false, last = false}
@@ -65,8 +77,17 @@ local function set_config(node_id, number_of_nodes)
     end
 end
 
-local function encode_message(new_type, new_sender, new_recipient, new_message, new_hops, new_path)
-    local message = {type = new_type, sender = new_sender, recipient =  new_recipient, payload = new_message, hops = new_hops, path = new_path}
+local function encode_message(new_type, new_sender, new_recipient,
+                              new_message, new_hops, new_path)
+    local message = {
+        type = new_type,
+        sender = new_sender,
+        recipient =  new_recipient,
+        payload = new_message,
+        hops = new_hops,
+        path = new_path
+    }
+
     local message_encoded = json.encode(message)
     print(message_encoded)
     return message_encoded
@@ -84,31 +105,43 @@ local function getRandomItemFromList(list)
 end
 
 local function mqttcb(topic, message)
-   local decoded_message = decode_message(message)
+    local decoded_message = decode_message(message)
 
     if decoded_message.type == "evento" then
+        local dist, dir = nil, nil
+        
+        -- Tratamento para o caso onde a mensagem publicada no tópico é do
+        -- próprio dono do tópico
         if tonumber(decoded_message.sender) == tonumber(node.id) then
-            table.insert(distances, tonumber(node.id), {
-                distance = 0,
-                origin = node.id,
-                event = decoded_message.payload
-            })
+            dist = 0
+            dir = tonumber(node.id) -- o publisher é o próprio nó
+            events[decoded_message.payload] = {
+                distance = dist,
+                direction = dir
+            }
         end
 
+        -- Tratamento para o caso onde a mensagem publicada no tópico é
+        -- recebida por um inscrito
         if tonumber(decoded_message.recipient) == tonumber(node.id) then
-            table.insert(distances, tonumber(node.id), {
-                distance = 1,
-                origin = node.id,
-                event = decoded_message.payload
-            })
+            print("Here!!!!!!")
+            dist = 1
+            dir = tonumber(decoded_message.sender) -- o publisher é quem viu o evento
+            events[decoded_message.payload] = {
+                distance = dist,
+                direction = dir
+            }
         end
+        print("FOR NODE " .. node.id .. " " .. dumpTable(events))
 
     elseif decoded_message.type == "consulta"  then
         if tonumber(decoded_message.recipient) == tonumber(node.id) then
             table.insert(display_info, message)
             local hops = tonumber(decoded_message.hops)
             if hops > 0  then
-                if decoded_message.path == '' or  decoded_message.path == nil then
+                -- Se o caminho está vazio é porque a mensagem voltou a quem solicitou
+                -- a consulta
+                if decoded_message.path == '' or decoded_message.path == nil then
                     if decoded_message.payload == "Chegou ao destino!" then
                         local encoded_message = encode_message(
                             "consulta",
@@ -118,10 +151,13 @@ local function mqttcb(topic, message)
                             0,
                             decoded_message.path
                         )
-                        logger.writeLog("NODE"..node.id, encoded_message) -- salva em arquivos
+
+                        -- Log e interface
+                        logger.writeLog("NODE"..node.id, encoded_message)
                         table.insert(display_info, encoded_message)
                     end
                 else
+                    --
                     if decoded_message.payload == "Chegou ao destino!" then
                         local encoded_message = encode_message(
                             "consulta",
@@ -135,7 +171,7 @@ local function mqttcb(topic, message)
                         mqtt_client:publish(node.topic, encoded_message)
                         logger.writeLog("NODE"..node.id, encoded_message) -- salva em arquivos
                         table.insert(display_info, encoded_message)
-
+                    --
                     elseif decoded_message.payload == button_texts[3] then
                         local encoded_message = encode_message(
                             "consulta",
@@ -149,6 +185,7 @@ local function mqttcb(topic, message)
                         mqtt_client:publish(node.topic, encoded_message)
                         logger.writeLog("NODE"..node.id, encoded_message) -- salva em arquivo
                         table.insert(display_info, encoded_message)
+                    --
                     elseif decoded_message.payload == button_texts[4]  then
                         local encoded_message = encode_message(
                             "consulta",
@@ -186,14 +223,17 @@ local function mqttcb(topic, message)
                             decoded_message.path..tostring(node.id)
                         )
                         mqtt_client:publish(node.topic, encoded_message)
-                        logger.writeLog("NODE"..node.id, encoded_message) -- salva em arquivo
+                        logger.writeLog("NODE"..node.id, encoded_message)
                         table.insert(display_info, encoded_message)
                     end
                 end
+            else
+                print("Números de hops insuficiente")
+                logger.writeLog("NODE"..node.id, "Números de hops insuficiente")
             end
         end
     else
-      --erro: tipo invalido
+        --erro: tipo invalido
     end
 end
 
@@ -202,11 +242,6 @@ function love.load(arg)
 
     if isOk then
         dofile("config/" .. config_file)
-
-        for i = 1, config.numberOfNodes, 1 do
-            local distance = {}
-            table.insert(distances, i, distance)
-        end
 
         -- Config do nó
         node = node_obj
@@ -254,13 +289,20 @@ function love.load(arg)
             function ()
                 local message = "Evento "..node_id
                 local neighborhood = node:getNeighborList()
-                local neighbor = getRandomItemFromList(neighborhood)
 
-                local encoded_message = encode_message("evento", node_id, neighborhood[neighbor], message, MAX_HOPS)
-                print(encoded_message) -- print no terminal
-                logger.writeLog("NODE"..node_id, encoded_message) -- salva em arquivo
-                mqtt_client:publish(node.topic, encoded_message) -- envia msg via mqtt
-                table.insert(display_info, encoded_message)
+                for _, neighbor in pairs(neighborhood) do
+                    local encoded_message = encode_message(
+                        "evento",
+                        node_id,
+                        neighbor,
+                        message,
+                        MAX_HOPS
+                    )
+                    print(encoded_message) -- print no terminal
+                    logger.writeLog("NODE"..node_id, encoded_message) -- salva em arquivo
+                    mqtt_client:publish(node.topic, encoded_message) -- envia msg via mqtt
+                    table.insert(display_info, encoded_message)
+                end
             end
         ))
 
@@ -269,13 +311,20 @@ function love.load(arg)
             function ()
                 local message = "Evento "..node_id+num_nodes
                 local neighborhood = node:getNeighborList()
-                local neighbor = getRandomItemFromList(neighborhood)
 
-                local encoded_message = encode_message("evento", node_id, neighborhood[neighbor], message, MAX_HOPS)
-                print(encoded_message) -- print no terminal
-                logger.writeLog("NODE"..node_id, encoded_message) -- salva em arquivo
-                mqtt_client:publish(node.topic, encoded_message) -- envia msg via mqtt
-                table.insert(display_info, encoded_message)
+                for _, neighbor in pairs(neighborhood) do
+                    local encoded_message = encode_message(
+                        "evento",
+                        node_id,
+                        neighbor,
+                        message,
+                        MAX_HOPS
+                    )
+                    print(encoded_message) -- print no terminal
+                    logger.writeLog("NODE"..node_id, encoded_message) -- salva em arquivo
+                    mqtt_client:publish(node.topic, encoded_message) -- envia msg via mqtt
+                    table.insert(display_info, encoded_message)
+                end
             end
         ))
 

@@ -1,1 +1,2 @@
-2021-06-17 16:50:46 , NODE3 , Encerrando o programa
+2021-06-17 18:09:38 , NODE3 , {"payload":"Consulta 9","hops":18,"sender":3,"type":"consulta","recipient":6,"path":"523"}
+2021-06-17 18:09:39 , NODE3 , {"payload":"Chegou ao destino!","hops":14,"sender":3,"type":"consulta","recipient":"2","path":"5"}
