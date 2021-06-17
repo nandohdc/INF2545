@@ -32,6 +32,10 @@ function node:setSubscriptions(subscriptions)
     self.subscriptions = subscriptions
 end
 
+function node:getSubscriptions()
+    return self.subscriptions
+end
+
 -------------------------------------------------------------------------------
 -- Routing functions
 -------------------------------------------------------------------------------

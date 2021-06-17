@@ -12,6 +12,8 @@ local buttons = {}
 local mqtt_client = nil
 local font = nil
 local display_info = {}
+local texts = {}
+local num_nodes = 0
 
 local function new_button(text, ftn)
     return {
@@ -45,7 +47,8 @@ local function set_config(node_id, number_of_nodes)
     local window_width = screen_width/(number_of_nodes/2)
     local window_height = (screen_height - offset_height)/2
     local margin_height = 80
-    love.window.setTitle("NODE - "..node_id)
+    local window_title = "NODE - "..node_id
+    love.window.setTitle(window_title)
     love.window.setMode(window_width, window_height, nil)
 
     if tonumber(node_id) <= math.ceil(number_of_nodes/2) then
@@ -55,8 +58,8 @@ local function set_config(node_id, number_of_nodes)
     end
 end
 
-local function encode_message(new_sender, new_recipient, new_message)
-    local message = {sender = new_sender, recipient =  new_recipient, payload = new_message}
+local function encode_message(new_sender, new_recipient, new_message, new_hops)
+    local message = {sender = new_sender, recipient =  new_recipient, payload = new_message, hops = new_hops}
     local message_encoded = json.encode(message)
     return message_encoded
 end
@@ -67,10 +70,32 @@ local function decode_message(new_encoded_message)
 end
 
 local function mqttcb(topic, message)
-   table.insert(display_info, message)
    local decoded_message = decode_message(message)
-   print(decoded_message.sender)
-   logger.writeLog("logNODE-"..node.id..".csv", "NODE"..node.id, "Received: " .. message)
+    if tonumber(decoded_message.recipient) == tonumber(node.id) then
+        table.insert(display_info, message)
+        print(message)
+        local hops = tonumber(decoded_message.hops)
+        if hops > 0  then
+            local encoded_message = encode_message(node.id, decoded_message.sender, decoded_message.payload, 0)
+            if decoded_message.payload == texts[1] then
+                mqtt_client:publish(node.topic, encoded_message) -- envia msg via mqtt
+                table.insert(display_info, encoded_message)
+            elseif decoded_message.payload == texts[2]  then
+                encoded_message = encode_message(node.id, decoded_message.sender, decoded_message.payload, 0)
+                mqtt_client:publish(node.topic, encoded_message) -- envia msg via mqtt
+                table.insert(display_info, encoded_message)
+            else
+                local neighbor = tonumber(string.sub(node:getSubscriptions()[math.random(#node:getSubscriptions())], 8))
+
+                while neighbor == tonumber(decoded_message.sender) do
+                    neighbor = tonumber(string.sub(node:getSubscriptions()[math.random(#node:getSubscriptions())], 8))
+                end
+                encoded_message = encode_message(node.id, neighbor, decoded_message.payload, hops - 1)
+                mqtt_client:publish(node.topic, encoded_message) -- envia msg via mqtt
+                table.insert(display_info, encoded_message)
+            end
+        end
+    end
 end
 
 function love.load(arg)
@@ -85,6 +110,11 @@ function love.load(arg)
         node:setSubscriptions(config.subscribedTo)
 
         local num_nodes = config.numberOfNodes
+        
+        if num_nodes == 0 then
+            -- fechar o programa, config invalida
+        end
+
         local node_id = tostring(config.id)
         logger:setFilename(node_id)
         
@@ -97,18 +127,20 @@ function love.load(arg)
             mqtt_client:subscribe({subscription})
         end
 
-        --logger.writeLog(filename, "NODE"..node_id, encode_message(node_id, "broadcast", node_id)) -- salva em arquivo
-        --mqtt_client:publish(node.topic, encode_message(node_id, "broadcast", node_id)) -- envia msg via mqtt
-
         set_config(node.id, num_nodes) --funcao de configuracao das janelas
 
         font = love.graphics.newFont(24)
 
+        table.insert(texts, "Evento "..node_id)
+        table.insert(texts, "Evento "..(node_id+num_nodes))
+        table.insert(texts, "Consulta "..(node_id))
+        table.insert(texts, "Consulta "..(node_id+num_nodes))
         table.insert(buttons, new_button(
-            "Evento 1",
+            texts[1],
             function ()
-                local message = "Temperatura alta"
-                local encoded_message = encode_message(node_id, num_nodes, message)
+                local message = "Evento 18"
+                local neighbor = string.sub(node:getSubscriptions()[math.random(#node:getSubscriptions())], 8)
+                local encoded_message = encode_message(node_id, neighbor, message, 20)
                 print(encoded_message) -- print no terminal
                 logger.writeLog("NODE"..node_id, encoded_message) -- salva em arquivo
                 mqtt_client:publish(node.topic, encoded_message) -- envia msg via mqtt
@@ -117,10 +149,10 @@ function love.load(arg)
         ))
 
         table.insert(buttons, new_button(
-            "Evento 2",
+            texts[2],
             function ()
-                local message = "Umidade Alta"
-                local encoded_message = encode_message(node_id, num_nodes, message)
+                local message = texts[2]
+                local encoded_message = encode_message(node_id, num_nodes, message, 10)
                 print(encoded_message) -- print no terminal
                 logger.writeLog("NODE"..node_id, encoded_message) -- salva em arquivo
                 mqtt_client:publish(node.topic, encoded_message) -- envia msg via mqtt
@@ -129,18 +161,18 @@ function love.load(arg)
         ))
 
         table.insert(buttons, new_button(
-            "Consulta 1",
+            texts[3],
             function ()
-                local message = "Temperatura alta"
+                local message = texts[3]
                 print(message)
                 logger.writeLog("NODE"..node_id, message)
             end
         ))
 
         table.insert(buttons, new_button(
-            "Consulta 2",
+            texts[4],
             function ()
-                local message = "Umidade Alta"
+                local message = texts[4]
                 print(message)
                 logger.writeLog("NODE"..node_id, message)
             end
@@ -232,9 +264,9 @@ function love.draw()
             if display_info[i] ~= nil then
                 local scale = window_width / font:getWidth(display_info[i]) 
                 if scale > 1 then
-                    love.graphics.printf(display_info[i], tx, ty + (i)*20, window_width - 10, "left", nil, nil, nil, nil, nil, nil, nil)
+                    love.graphics.printf(display_info[i], tx, ty + (i)*40, window_width - 10, "left", nil, nil, nil, nil, nil, nil, nil)
                 else
-                    love.graphics.printf(display_info[i], tx, ty + ((i-1)*scale)*20, window_width - 10, "left", nil, nil, nil, nil, nil, nil, nil)
+                    love.graphics.printf(display_info[i], tx, ty + ((i)*scale)*20, window_width - 10, "left", nil, nil, nil, nil, nil, nil, nil)
                 end
             end
         end
