@@ -7,7 +7,6 @@ node.id = nil
 node.topic = nil
 node.subscriptions = nil
 node.neighborList = {}
-node.routes = { Events = {}, Dist = {}, Dir = {} }
 
 -------------------------------------------------------------------------------
 -- Methods

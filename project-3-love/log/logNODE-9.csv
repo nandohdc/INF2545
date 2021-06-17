@@ -1,1 +1,2 @@
-2021-06-17 16:50:49 , NODE9 , Encerrando o programa
+2021-06-17 18:09:32 , NODE9 , {"payload":"Evento 9","hops":20,"sender":9,"type":"evento","recipient":6}
+2021-06-17 18:09:32 , NODE9 , {"payload":"Evento 9","hops":20,"sender":9,"type":"evento","recipient":8}

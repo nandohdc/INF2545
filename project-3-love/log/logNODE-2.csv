@@ -1,1 +1,2 @@
-2021-06-17 16:50:45 , NODE2 , Encerrando o programa
+2021-06-17 18:09:38 , NODE2 , {"payload":"Consulta 9","hops":19,"sender":2,"type":"consulta","recipient":3,"path":"52"}
+2021-06-17 18:09:39 , NODE2 , {"payload":"Chegou ao destino!","hops":13,"sender":2,"type":"consulta","recipient":"5","path":""}
