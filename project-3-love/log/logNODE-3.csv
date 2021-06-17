@@ -1,1 +1,35 @@
-2021-06-17 11:15:19 , NODE3 , {"payload":"Consulta 8","hops":19,"sender":3,"type":"consulta","recipient":4,"path":"13"}
+2021-06-17 12:15:32 , NODE3 , {"payload":"Consulta 8","hops":19,"sender":3,"type":"consulta","recipient":4,"path":"13"}
+2021-06-17 12:15:33 , NODE3 , {"payload":"Chegou ao destino!","hops":17,"sender":3,"type":"consulta","recipient":"3","path":"13"}
+2021-06-17 12:15:33 , NODE3 , {"payload":"Chegou ao destino!","hops":17,"sender":3,"type":"consulta","recipient":1,"path":"133"}
+2021-06-17 12:15:33 , NODE3 , {"payload":"Chegou ao destino!","hops":15,"sender":3,"type":"consulta","recipient":"3","path":"33"}
+2021-06-17 12:15:33 , NODE3 , {"payload":"Chegou ao destino!","hops":15,"sender":3,"type":"consulta","recipient":4,"path":"333"}
+2021-06-17 12:15:34 , NODE3 , {"payload":"Chegou ao destino!","hops":13,"sender":3,"type":"consulta","recipient":"3","path":"33"}
+2021-06-17 12:15:34 , NODE3 , {"payload":"Chegou ao destino!","hops":13,"sender":3,"type":"consulta","recipient":1,"path":"333"}
+2021-06-17 12:15:34 , NODE3 , {"payload":"Chegou ao destino!","hops":13,"sender":3,"type":"consulta","recipient":"1","path":"11"}
+2021-06-17 12:15:34 , NODE3 , {"payload":"Chegou ao destino!","hops":13,"sender":3,"type":"consulta","recipient":4,"path":"3113"}
+2021-06-17 12:15:34 , NODE3 , {"payload":"Chegou ao destino!","hops":13,"sender":3,"type":"consulta","recipient":"4","path":"24"}
+2021-06-17 12:15:34 , NODE3 , {"payload":"Chegou ao destino!","hops":13,"sender":3,"type":"consulta","recipient":1,"path":"1331243"}
+2021-06-17 12:15:35 , NODE3 , {"payload":"Chegou ao destino!","hops":11,"sender":3,"type":"consulta","recipient":"1","path":"21"}
+2021-06-17 12:15:35 , NODE3 , {"payload":"Chegou ao destino!","hops":11,"sender":3,"type":"consulta","recipient":4,"path":"3334213"}
+2021-06-17 12:15:35 , NODE3 , {"payload":"Chegou ao destino!","hops":11,"sender":3,"type":"consulta","recipient":"3","path":"33"}
+2021-06-17 12:15:35 , NODE3 , {"payload":"Chegou ao destino!","hops":11,"sender":3,"type":"consulta","recipient":4,"path":"333"}
+2021-06-17 12:15:35 , NODE3 , {"payload":"Chegou ao destino!","hops":11,"sender":3,"type":"consulta","recipient":"4","path":"44"}
+2021-06-17 12:15:35 , NODE3 , {"payload":"Chegou ao destino!","hops":11,"sender":3,"type":"consulta","recipient":1,"path":"3443"}
+2021-06-17 12:15:35 , NODE3 , {"payload":"Chegou ao destino!","hops":11,"sender":3,"type":"consulta","recipient":"3","path":"13"}
+2021-06-17 12:15:35 , NODE3 , {"payload":"Chegou ao destino!","hops":11,"sender":3,"type":"consulta","recipient":1,"path":"133"}
+2021-06-17 12:15:35 , NODE3 , {"payload":"Chegou ao destino!","hops":11,"sender":3,"type":"consulta","recipient":"1","path":"21"}
+2021-06-17 12:15:35 , NODE3 , {"payload":"Chegou ao destino!","hops":11,"sender":3,"type":"consulta","recipient":4,"path":"12213"}
+2021-06-17 12:15:35 , NODE3 , {"payload":"Chegou ao destino!","hops":11,"sender":3,"type":"consulta","recipient":"3","path":"43"}
+2021-06-17 12:15:35 , NODE3 , {"payload":"Chegou ao destino!","hops":11,"sender":3,"type":"consulta","recipient":4,"path":"433"}
+2021-06-17 12:15:35 , NODE3 , {"payload":"Chegou ao destino!","hops":9,"sender":3,"type":"consulta","recipient":"4","path":"24"}
+2021-06-17 12:15:35 , NODE3 , {"payload":"Chegou ao destino!","hops":9,"sender":3,"type":"consulta","recipient":1,"path":"42243"}
+2021-06-17 12:15:35 , NODE3 , {"payload":"Chegou ao destino!","hops":9,"sender":3,"type":"consulta","recipient":"3","path":"43"}
+2021-06-17 12:15:35 , NODE3 , {"payload":"Chegou ao destino!","hops":9,"sender":3,"type":"consulta","recipient":4,"path":"433"}
+2021-06-17 12:15:35 , NODE3 , {"payload":"Chegou ao destino!","hops":9,"sender":3,"type":"consulta","recipient":"3","path":"33"}
+2021-06-17 12:15:35 , NODE3 , {"payload":"Chegou ao destino!","hops":9,"sender":3,"type":"consulta","recipient":4,"path":"333"}
+2021-06-17 12:15:35 , NODE3 , {"payload":"Chegou ao destino!","hops":9,"sender":3,"type":"consulta","recipient":"1","path":"11"}
+2021-06-17 12:15:35 , NODE3 , {"payload":"Chegou ao destino!","hops":9,"sender":3,"type":"consulta","recipient":4,"path":"3113"}
+2021-06-17 12:15:35 , NODE3 , {"payload":"Chegou ao destino!","hops":9,"sender":3,"type":"consulta","recipient":"1","path":"11"}
+2021-06-17 12:15:35 , NODE3 , {"payload":"Chegou ao destino!","hops":9,"sender":3,"type":"consulta","recipient":4,"path":"1113"}
+2021-06-17 12:15:35 , NODE3 , {"payload":"Chegou ao destino!","hops":9,"sender":3,"type":"consulta","recipient":"3","path":"13"}
+2021-06-17 12:15:35 , NODE3 , {"payload":"Chegou ao destino!","hops":9,"sender":3,"type":"consulta","recipient":1,"path":"133"}
