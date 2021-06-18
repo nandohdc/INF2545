@@ -1,6 +1,0 @@
-2021-06-17 20:38:15 , NODE7 , {"payload":"Evento 7","hops":20,"sender":7,"type":"evento","recipient":4}
-2021-06-17 20:38:15 , NODE7 , {"payload":"Evento 7","hops":20,"sender":7,"type":"evento","recipient":8}
-2021-06-17 20:38:19 , NODE7 , {"payload":"Evento 16","hops":20,"sender":7,"type":"evento","recipient":4}
-2021-06-17 20:38:19 , NODE7 , {"payload":"Evento 16","hops":20,"sender":7,"type":"evento","recipient":8}
-2021-06-17 20:38:56 , NODE7 , {"payload":"Consulta 10","hops":12,"sender":7,"type":"consulta","recipient":8,"path":"589632147"}
-2021-06-17 20:38:57 , NODE7 , {"payload":"Chegou ao destino!","hops":8,"sender":7,"type":"consulta","recipient":"4","path":"5896321"}
