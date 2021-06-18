@@ -133,7 +133,7 @@ local function mqttcb(topic, message)
                 direction = dir
             }
         end
-        -- print("FOR NODE " .. node.id .. " " .. dumpTable(events)) -- DEBUG
+        print("FOR NODE " .. node.id .. " " .. dumpTable(events)) -- DEBUG
 
     elseif decoded_message.type == "consulta"  then
         if tonumber(decoded_message.recipient) == tonumber(node.id) then
@@ -206,7 +206,7 @@ local function mqttcb(topic, message)
                             direction = tonumber(decoded_message.sender)
                         }
 
-                        -- print("FOR NODE " .. node.id .. " " .. dumpTable(events)) -- DEBUG
+                        print("FOR NODE " .. node.id .. " " .. dumpTable(events)) -- DEBUG
 
                         local encoded_message = encode_message(
                             "consulta",

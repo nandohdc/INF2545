@@ -1,0 +1,26 @@
+2021-06-17 22:40:16 , NODE1 , {"payload":"Evento 1","hops":20,"sender":1,"type":"evento","recipient":2}
+2021-06-17 22:40:16 , NODE1 , {"payload":"Evento 1","hops":20,"sender":1,"type":"evento","recipient":3}
+2021-06-17 22:40:25 , NODE1 , {"payload":"Evento 5","hops":20,"sender":1,"type":"evento","recipient":2}
+2021-06-17 22:40:25 , NODE1 , {"payload":"Evento 5","hops":20,"sender":1,"type":"evento","recipient":3}
+2021-06-17 22:40:28 , NODE1 , {"payload":"Consulta 1","hops":18,"sender":1,"type":"consulta","recipient":3,"path":"421"}
+2021-06-17 22:40:28 , NODE1 , {"payload":"Chegou ao destino!Consulta 1!Dist 2!","hops":14,"sender":1,"type":"consulta","recipient":"2","path":"4"}
+2021-06-17 22:40:29 , NODE1 , {"payload":"Consulta 4","hops":17,"sender":1,"type":"consulta","recipient":3,"path":"3421"}
+2021-06-17 22:40:29 , NODE1 , {"payload":"Chegou ao destino!Consulta 4!Dist 1!","hops":15,"sender":1,"type":"consulta","recipient":"2","path":"34"}
+2021-06-17 22:40:31 , NODE1 , {"payload":"Consulta 6","hops":19,"sender":1,"type":"consulta","recipient":3,"path":"21"}
+2021-06-17 22:40:33 , NODE1 , {"payload":"Chegou ao destino!Consulta 6!Dist 3!","hops":13,"sender":1,"type":"consulta","recipient":"2","path":""}
+2021-06-17 22:40:33 , NODE1 , {"payload":"Consulta 8","hops":20,"sender":1,"type":"consulta","recipient":3,"path":"1"}
+2021-06-17 22:40:33 , NODE1 , {"payload":"Chegou ao destino!Consulta 8!Dist 0!","hops":16,"sender":1,"type":"consulta","recipient":"2","path":"134"}
+2021-06-17 22:40:34 , NODE1 , {"payload":"Consulta 7","hops":20,"sender":1,"type":"consulta","recipient":3,"path":"1"}
+2021-06-17 22:40:34 , NODE1 , {"payload":"Consulta 7","hops":20,"sender":1,"type":"consulta","recipient":3,"path":"1"}
+2021-06-17 22:40:34 , NODE1 , {"payload":"Volta Completa!","hops":0,"sender":1,"type":"consulta","recipient":1,"path":""}
+2021-06-17 22:40:35 , NODE1 , {"payload":"Chegou ao destino!Consulta 7!Dist 0!","hops":16,"sender":1,"type":"consulta","recipient":"2","path":"134"}
+2021-06-17 22:40:35 , NODE1 , {"payload":"Chegou ao destino!Consulta 7!Dist 0!","hops":16,"sender":1,"type":"consulta","recipient":"2","path":"134"}
+2021-06-17 22:40:35 , NODE1 , {"payload":"Volta Completa!","hops":0,"sender":1,"type":"consulta","recipient":1,"path":""}
+2021-06-17 22:40:36 , NODE1 , {"payload":"Consulta 5","hops":19,"sender":1,"type":"consulta","recipient":3,"path":"21"}
+2021-06-17 22:40:36 , NODE1 , {"payload":"Volta Completa!","hops":0,"sender":1,"type":"consulta","recipient":1,"path":""}
+2021-06-17 22:40:37 , NODE1 , {"payload":"Chegou ao destino!Consulta 5!Dist 3!","hops":13,"sender":1,"type":"consulta","recipient":"2","path":""}
+2021-06-17 22:40:38 , NODE1 , {"payload":"Consulta 1","hops":18,"sender":1,"type":"consulta","recipient":3,"path":"421"}
+2021-06-17 22:40:38 , NODE1 , {"payload":"Chegou ao destino!Consulta 1!Dist 2!","hops":14,"sender":1,"type":"consulta","recipient":"2","path":"4"}
+2021-06-17 22:40:40 , NODE1 , {"payload":"Consulta 3","hops":17,"sender":1,"type":"consulta","recipient":3,"path":"3421"}
+2021-06-17 22:40:40 , NODE1 , {"payload":"Chegou ao destino!Consulta 3!Dist 1!","hops":15,"sender":1,"type":"consulta","recipient":"2","path":"34"}
+2021-06-17 22:40:43 , NODE1 , Encerrando o programa
