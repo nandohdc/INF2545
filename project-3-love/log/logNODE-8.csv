@@ -1,6 +1,0 @@
-2021-06-17 22:14:58 , NODE8 , {"payload":"Consulta 3","hops":20,"sender":8,"type":"consulta","recipient":7,"path":"8"}
-2021-06-17 22:15:00 , NODE8 , {"payload":"Chegou ao destino!Consulta 3!Dist 0!","hops":12,"sender":8,"type":"consulta","recipient":"9","path":"8741236"}
-2021-06-17 22:15:01 , NODE8 , {"payload":"Volta Completa!","hops":0,"sender":8,"type":"consulta","recipient":8,"path":""}
-2021-06-17 22:15:03 , NODE8 , {"payload":"Consulta 3","hops":20,"sender":8,"type":"consulta","recipient":7,"path":"8"}
-2021-06-17 22:15:04 , NODE8 , {"payload":"Chegou ao destino!Consulta 3!Dist 0!","hops":12,"sender":8,"type":"consulta","recipient":"9","path":"8741236"}
-2021-06-17 22:15:05 , NODE8 , {"payload":"Volta Completa!","hops":0,"sender":8,"type":"consulta","recipient":8,"path":""}
