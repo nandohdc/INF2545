@@ -1,3 +1,0 @@
-2021-06-17 18:09:38 , NODE5 , {"payload":"Consulta 9","hops":20,"sender":5,"type":"consulta","recipient":2,"path":"5"}
-2021-06-17 18:09:39 , NODE5 , {"payload":"Chegou ao destino!","hops":16,"sender":5,"type":"consulta","recipient":"6","path":"523"}
-2021-06-17 18:09:39 , NODE5 , {"payload":"Volta Completa!","hops":0,"sender":5,"type":"consulta","recipient":5,"path":""}

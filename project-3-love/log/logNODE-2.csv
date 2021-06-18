@@ -1,2 +1,4 @@
-2021-06-17 18:09:38 , NODE2 , {"payload":"Consulta 9","hops":19,"sender":2,"type":"consulta","recipient":3,"path":"52"}
-2021-06-17 18:09:39 , NODE2 , {"payload":"Chegou ao destino!","hops":13,"sender":2,"type":"consulta","recipient":"5","path":""}
+2021-06-17 22:14:59 , NODE2 , {"payload":"Consulta 3","hops":16,"sender":2,"type":"consulta","recipient":3,"path":"87412"}
+2021-06-17 22:15:01 , NODE2 , {"payload":"Chegou ao destino!Consulta 3!Dist 4!","hops":8,"sender":2,"type":"consulta","recipient":"1","path":"874"}
+2021-06-17 22:15:03 , NODE2 , {"payload":"Consulta 3","hops":16,"sender":2,"type":"consulta","recipient":3,"path":"87412"}
+2021-06-17 22:15:05 , NODE2 , {"payload":"Chegou ao destino!Consulta 3!Dist 4!","hops":8,"sender":2,"type":"consulta","recipient":"1","path":"874"}
